@@ -24,7 +24,8 @@
 
     --heading: #ffffff;     /* titres */
     --deep: #070614;        /* fonds les plus sombres (dialogues, champs) */
-    --on-accent: #ffffff;   /* texte posé sur la couleur rose */
+    --on-accent: #0d0b1e;   /* texte posé sur la couleur rose (contraste 6:1) */
+    --bug: var(--pink);     /* nourriture du Snake : doit trancher avec le serpent */
     --grid-line: rgba(139, 92, 246, 0.07);
     --vignette: rgba(0, 0, 0, 0.6);
 
@@ -54,6 +55,7 @@
     --red: #b8d850;
     --purple: #306230;
     --on-accent: #0f380f;
+    --bug: var(--heading);
     --grid-line: rgba(155, 188, 15, 0.08);
 }
 
@@ -68,10 +70,10 @@
     --muted: #574f75;
     --heading: #1a1530;
     --deep: #ffffff;
-    --pink: #c8235f;
+    --pink: #a81c4e;
     --cyan: #0a7480;
-    --yellow: #b07800;
-    --green: #17884a;
+    --yellow: #8a5d00;
+    --green: #0d6e38;
     --red: #c62828;
     --purple: #5b34c4;
     --on-accent: #ffffff;
@@ -97,7 +99,37 @@
     --green: #ff7b4a;
     --red: #ff3b3b;
     --purple: #a01010;
+    --bug: var(--heading);
+    --on-accent: #1a0000;
     --grid-line: rgba(255, 59, 59, 0.07);
+}
+
+/* Daltonisme : palette Okabe-Ito (distinguable avec toutes les formes de daltonisme)
+   + contraste renforcé */
+:root[data-theme="access"] {
+    --bg: #0b0b0f;
+    --bg-2: #121218;
+    --panel: #18181f;
+    --panel-2: #24242e;
+    --border: #8a8aa0;
+    --text: #f4f4f4;
+    --muted: #cfcfd8;
+    --heading: #ffffff;
+    --deep: #000000;
+    --pink: #e69f00;   /* orange */
+    --cyan: #56b4e9;   /* bleu ciel */
+    --yellow: #f0e442; /* jaune */
+    --green: #009e73;  /* vert bleuté */
+    --red: #d55e00;    /* vermillon */
+    --purple: #cc79a7; /* rose violacé */
+    --on-accent: #000000;
+    --bug: #ffffff;
+    --grid-line: rgba(255, 255, 255, 0.05);
+}
+
+/* Thème clair : texte blanc sur les pastilles colorées (contraste suffisant) */
+:root[data-theme="console"] :is(.world, .step-num, .timeline-status, .filter-btn.active) {
+    color: #ffffff;
 }
 
 /* Le thème clair n'a pas besoin des lignes cathodiques sombres */
@@ -1066,6 +1098,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 
 .pixel-btn.alt {
     background: var(--panel-2);
+    color: var(--heading);
 }
 
 .pixel-btn.big {
@@ -1524,6 +1557,15 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     font-size: 0.5rem;
 }
 
+.footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 20px;
+    margin-bottom: 6px;
+}
+
+.footer-social a:hover,
 .game-footer nav a:hover {
     color: var(--pink);
 }
@@ -1544,13 +1586,6 @@ body.rainbow .panel {
     text-align: center;
 }
 
-.journal {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-
-.journal-sub,
 .gear-slot h4 {
     font-family: var(--font-pixel);
     font-weight: normal;
@@ -1582,6 +1617,65 @@ body.rainbow .panel {
     background: var(--panel-2);
     border: 2px solid var(--border);
     font-size: 1.15rem;
+}
+
+/* Expériences professionnelles */
+.jobs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+}
+
+.job {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-2);
+    border: 2px solid var(--border);
+}
+
+.job.current {
+    border-color: var(--green);
+}
+
+.job.current .timeline-status {
+    background: var(--green);
+}
+
+.job-icon {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.6rem;
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    box-shadow: 3px 3px 0 #000;
+}
+
+.job-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.job h4 {
+    font-family: var(--font-pixel);
+    font-weight: normal;
+    font-size: 0.6rem;
+    line-height: 1.6;
+    color: var(--heading);
+}
+
+.job-place {
+    color: var(--muted);
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+}
+
+.job .chips li {
+    font-size: 1rem;
+    padding: 0 8px;
 }
 
 /* --- 16. BOUTIQUE --- */
@@ -1802,11 +1896,170 @@ body.rainbow .panel {
 }
 
 
-/* --- 19. RESPONSIVE --- */
+/* --- 19. ACCESSIBILITÉ : POLICES LISIBLES (dyslexie) --- */
+/* Les polices pixel sont dessinées très petites : on réduit la base
+   et on redonne une taille confortable à chaque type de texte. */
+:root[data-font] {
+    font-size: 80%;
+}
+
+:root[data-font="lexend"] {
+    --font-pixel: 'Lexend', system-ui, sans-serif;
+    --font-text: 'Lexend', system-ui, sans-serif;
+}
+
+:root[data-font="dyslexic"] {
+    --font-pixel: 'OpenDyslexic', 'Lexend', sans-serif;
+    --font-text: 'OpenDyslexic', 'Lexend', sans-serif;
+}
+
+:root[data-font] body {
+    line-height: 1.65;
+}
+
+/* Petites étiquettes (boutons, badges, labels…) */
+:root[data-font] :is(kbd, .skip-link, .title-insert, .hi-score, .hud, .hud-btn, .back-btn,
+    .dialog-name, .level-num, .stat dt, .stat dd span, .tag, .badge, .cart-label,
+    .pixel-btn, .filter-btn, .embed-label, .trophy-date, .section-sub,
+    .achievement strong, .toast small, .field label, .game-footer nav, .job h4,
+    .gear-slot h4, .timeline-status, .shop-price, .arcade-scores, .gameover-code, .step-num) {
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+}
+
+:root[data-font] .item::after {
+    font-size: 0.85rem;
+}
+
+/* Titres */
+:root[data-font] :is(.panel-title, .level-name, .char-name, .quest-head h3, .trophy h3,
+    .legal h3, .shop-item h3) {
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+:root[data-font] .screen-title {
+    font-size: clamp(1.5rem, 3.5vw, 2.1rem);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+:root[data-font] :is(.press-start, .continue, .arcade-msg) {
+    font-size: 1.4rem;
+}
+
+:root[data-font] .dialog-box p {
+    font-size: 1.3rem;
+}
+
+/* Aperçus des polices dans la fenêtre de réglages */
+.font-preview-lexend { font-family: 'Lexend', sans-serif; font-size: 0.95em; }
+.font-preview-dyslexic { font-family: 'OpenDyslexic', sans-serif; font-size: 0.85em; }
+
+/* --- 20. ACCESSIBILITÉ : ESPACEMENT, EFFETS, ANIMATIONS --- */
+/* Valeurs recommandées par les WCAG (critère 1.4.12) */
+:root[data-spacing="on"] body {
+    line-height: 1.9;
+    letter-spacing: 0.06em;
+    word-spacing: 0.16em;
+}
+
+:root[data-spacing="on"] p + p {
+    margin-top: 1em;
+}
+
+:root[data-crt="off"] .crt {
+    display: none;
+}
+
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* --- 21. FENÊTRE D'ACCESSIBILITÉ --- */
+.a11y-dialog {
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 0;
+    color: var(--text);
+    overflow: auto;
+}
+
+.a11y-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.a11y-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px;
+}
+
+.a11y-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.a11y-head .panel-title {
+    margin: 0;
+}
+
+.a11y-group {
+    border: 2px solid var(--border);
+    padding: 12px 14px 14px;
+}
+
+.a11y-group legend {
+    padding: 0 6px;
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: var(--yellow);
+}
+
+:root[data-font] .a11y-group legend {
+    font-size: 1rem;
+}
+
+.a11y-choice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    cursor: pointer;
+}
+
+.a11y-choice:hover {
+    background: var(--panel-2);
+}
+
+.a11y-choice input {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--pink);
+}
+
+.a11y-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* --- 22. RESPONSIVE --- */
 @media (max-width: 900px) {
     .profile-layout,
     .contact-layout,
-    .journal,
     .arcade {
         grid-template-columns: 1fr;
     }
@@ -1889,7 +2142,8 @@ body.rainbow .panel {
         gap: 6px;
     }
 
-    #theme-name {
+    #theme-name,
+    .hud-btn-label {
         display: none;
     }
 

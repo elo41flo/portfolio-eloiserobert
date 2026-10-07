@@ -7,17 +7,25 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" content="#0d0b1e">
 
-    <!-- Même thème de couleurs que sur le portfolio -->
+    <!-- Mêmes préférences (thème, accessibilité) que sur le portfolio -->
     <script>
         try {
-            var savedTheme = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}').theme;
-            if (savedTheme && savedTheme !== 'neon') document.documentElement.dataset.theme = savedTheme;
+            var prefs = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}');
+            var root = document.documentElement;
+            if (prefs.theme && prefs.theme !== 'neon') root.dataset.theme = prefs.theme;
+            if (prefs.font && prefs.font !== 'pixel') root.dataset.font = prefs.font;
+            if (prefs.spacing) root.dataset.spacing = 'on';
+            if (prefs.crt === false) root.dataset.crt = 'off';
+            if (prefs.motion === false) root.dataset.motion = 'off';
         } catch (e) {}
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Police pour la dyslexie (téléchargée seulement si l'option est choisie) -->
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/700.css" rel="stylesheet">
 
     <!-- Chemins absolus : la 404 peut s'afficher à n'importe quelle adresse -->
     <link rel="stylesheet" href="/reset.css">
@@ -33,7 +41,7 @@
 
         <div class="dialog-box">
             <span class="dialog-name">SYSTÈME</span>
-            <p>Oups ! Ce niveau n'existe pas… Tu es tombé·e dans un trou de la map. La page a peut-être été déplacée, ou l'adresse contient une faute de frappe.</p>
+            <p>Oups ! Ce niveau n'existe pas… Tu viens de tomber dans un trou de la map. La page a peut-être été déplacée, ou l'adresse contient une faute de frappe.</p>
         </div>
 
         <p class="continue" aria-live="polite">CONTINUE ? <strong id="countdown">9</strong></p>

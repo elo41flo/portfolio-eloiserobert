@@ -12,11 +12,16 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0d0b1e">
 
-    <!-- Applique le thème sauvegardé avant l'affichage (évite un flash de couleurs) -->
+    <!-- Applique les préférences sauvegardées (thème, accessibilité) avant l'affichage -->
     <script>
         try {
-            var savedTheme = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}').theme;
-            if (savedTheme && savedTheme !== 'neon') document.documentElement.dataset.theme = savedTheme;
+            var prefs = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}');
+            var root = document.documentElement;
+            if (prefs.theme && prefs.theme !== 'neon') root.dataset.theme = prefs.theme;
+            if (prefs.font && prefs.font !== 'pixel') root.dataset.font = prefs.font;
+            if (prefs.spacing) root.dataset.spacing = 'on';
+            if (prefs.crt === false) root.dataset.crt = 'off';
+            if (prefs.motion === false) root.dataset.motion = 'off';
         } catch (e) {}
     </script>
 
@@ -65,7 +70,8 @@
         },
         "sameAs": [
             "https://github.com/elo41flo",
-            "https://www.linkedin.com/in/eloise-robert-0b36902a6"
+            "https://www.linkedin.com/in/eloise-robert-0b36902a6",
+            "https://www.instagram.com/eloise_robert_dev/"
         ]
     }
     </script>
@@ -73,7 +79,10 @@
     <!-- Polices pixel -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Police pour la dyslexie (téléchargée seulement si l'option est choisie) -->
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/700.css" rel="stylesheet">
 
     <!-- Styles -->
     <link rel="stylesheet" href="reset.css">
@@ -131,6 +140,7 @@
             </div>
             <div class="hud-right">
                 <a href="#trophees" class="hud-btn" aria-label="Succès débloqués">🏆 <span id="ach-count">0</span>/<span id="ach-total">0</span></a>
+                <button type="button" class="hud-btn" id="a11y-btn" aria-haspopup="dialog" aria-controls="a11y-dialog">♿ <span class="hud-btn-label">Accessibilité</span></button>
                 <button type="button" class="hud-btn" id="theme-btn" aria-label="Changer de thème de couleurs">🎨 <span id="theme-name">Néon</span></button>
                 <button type="button" class="hud-btn" id="sound-btn" aria-pressed="false" aria-label="Activer le son">🔇</button>
                 <span class="hud-clock" id="clock">00:00</span>
@@ -143,7 +153,7 @@
             <section class="screen" data-screen="map" aria-labelledby="map-title">
                 <div class="dialog-box intro-dialog">
                     <span class="dialog-name">ELO</span>
-                    <p class="typewriter" data-text="Bienvenue, aventurier·ère ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !">Bienvenue, aventurier·ère ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !</p>
+                    <p class="typewriter" data-text="Bienvenue dans l'aventure ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !">Bienvenue dans l'aventure ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !</p>
                     <span class="dialog-next" aria-hidden="true">▼</span>
                 </div>
 
@@ -217,54 +227,66 @@
                 </div>
 
                 <section class="panel">
-                    <h3 class="panel-title">🗺️ Journal de quêtes — Parcours</h3>
-                    <div class="journal">
-                        <div>
-                            <h4 class="journal-sub">🎓 Formation</h4>
-                            <ol class="timeline">
-                                <li class="timeline-item current">
-                                    <span class="timeline-status">EN COURS</span>
-                                    <strong>BTS SIO — Services Informatiques aux Organisations</strong>
-                                    <p>CNED · formation à distance</p>
-                                </li>
-                                <li class="timeline-item">
-                                    <span class="timeline-status">2025 – 2027</span>
-                                    <strong>Titre professionnel Développeur Web</strong>
-                                    <p>La Fabrique du Numérique 41 · Certification WordPress (Simplon.co) obtenue en 2025</p>
-                                </li>
-                                <li class="timeline-item">
-                                    <span class="timeline-status">2021 – 2023</span>
-                                    <strong>Bac Pro Métiers de la Relation Client</strong>
-                                    <p>CNED</p>
-                                </li>
-                            </ol>
-                        </div>
-                        <div>
-                            <h4 class="journal-sub">⚔️ Expériences</h4>
-                            <ol class="timeline">
-                                <li class="timeline-item current">
-                                    <span class="timeline-status">2026</span>
-                                    <strong>Stagiaire développeuse web</strong>
-                                    <p>Blois</p>
-                                </li>
-                                <li class="timeline-item">
-                                    <span class="timeline-status">2025</span>
-                                    <strong>Équipière</strong>
-                                    <p>McDonald's · Tavers</p>
-                                </li>
-                                <li class="timeline-item">
-                                    <span class="timeline-status">2025</span>
-                                    <strong>Manutentionnaire</strong>
-                                    <p>Mer</p>
-                                </li>
-                                <li class="timeline-item">
-                                    <span class="timeline-status">2025</span>
-                                    <strong>Employée polyvalente</strong>
-                                    <p>Messas</p>
-                                </li>
-                            </ol>
-                        </div>
-                    </div>
+                    <h3 class="panel-title">🎓 Journal de quêtes — Formation</h3>
+                    <ol class="timeline">
+                        <li class="timeline-item current">
+                            <span class="timeline-status">EN COURS</span>
+                            <strong>BTS SIO — Services Informatiques aux Organisations</strong>
+                            <p>CNED · formation à distance</p>
+                        </li>
+                        <li class="timeline-item">
+                            <span class="timeline-status">2025 – 2027</span>
+                            <strong>Titre professionnel Développeur Web</strong>
+                            <p>La Fabrique du Numérique 41 · Certification WordPress (Simplon.co) obtenue en 2025</p>
+                        </li>
+                        <li class="timeline-item">
+                            <span class="timeline-status">2021 – 2023</span>
+                            <strong>Bac Pro Métiers de la Relation Client</strong>
+                            <p>CNED</p>
+                        </li>
+                    </ol>
+                </section>
+
+                <section class="panel">
+                    <h3 class="panel-title">💼 Expériences professionnelles</h3>
+                    <ul class="jobs">
+                        <li class="job current">
+                            <span class="job-icon" aria-hidden="true">💻</span>
+                            <div class="job-body">
+                                <span class="timeline-status">2026</span>
+                                <h4>Stagiaire développeuse web</h4>
+                                <p class="job-place">📍 Blois</p>
+                                <ul class="chips"><li>Développement web</li><li>Projet en entreprise</li></ul>
+                            </div>
+                        </li>
+                        <li class="job">
+                            <span class="job-icon" aria-hidden="true">🍔</span>
+                            <div class="job-body">
+                                <span class="timeline-status">2025</span>
+                                <h4>Équipière</h4>
+                                <p class="job-place">📍 McDonald's · Tavers</p>
+                                <ul class="chips"><li>Travail d'équipe</li><li>Relation client</li><li>Rapidité</li></ul>
+                            </div>
+                        </li>
+                        <li class="job">
+                            <span class="job-icon" aria-hidden="true">📦</span>
+                            <div class="job-body">
+                                <span class="timeline-status">2025</span>
+                                <h4>Manutentionnaire</h4>
+                                <p class="job-place">📍 Mer</p>
+                                <ul class="chips"><li>Rigueur</li><li>Organisation</li><li>Endurance</li></ul>
+                            </div>
+                        </li>
+                        <li class="job">
+                            <span class="job-icon" aria-hidden="true">🧰</span>
+                            <div class="job-body">
+                                <span class="timeline-status">2025</span>
+                                <h4>Employée polyvalente</h4>
+                                <p class="job-place">📍 Messas</p>
+                                <ul class="chips"><li>Polyvalence</li><li>Adaptabilité</li><li>Autonomie</li></ul>
+                            </div>
+                        </li>
+                    </ul>
                 </section>
 
                 <section class="panel">
@@ -733,6 +755,7 @@
                         <a href="mailto:elo.robert41@gmail.com" class="panel contact-pill"><span>📧</span> elo.robert41@gmail.com</a>
                         <a href="https://www.linkedin.com/in/eloise-robert-0b36902a6" target="_blank" rel="noopener" class="panel contact-pill"><span>🔗</span> LinkedIn</a>
                         <a href="https://github.com/elo41flo" target="_blank" rel="noopener" class="panel contact-pill"><span>🐙</span> GitHub</a>
+                        <a href="https://www.instagram.com/eloise_robert_dev/" target="_blank" rel="noopener" class="panel contact-pill"><span>📸</span> Instagram · @eloise_robert_dev</a>
                         <div class="dialog-box">
                             <span class="dialog-name">ASTUCE</span>
                             <p>Je réponds généralement en moins de 48 h. Ta partie est entre de bonnes mains !</p>
@@ -838,12 +861,55 @@
                 <a href="#mentions">Mentions légales</a>
                 <a href="#confidentialite">Confidentialité</a>
             </nav>
+            <p class="footer-social">
+                <a href="https://github.com/elo41flo" target="_blank" rel="noopener">🐙 GitHub</a>
+                <a href="https://www.linkedin.com/in/eloise-robert-0b36902a6" target="_blank" rel="noopener">🔗 LinkedIn</a>
+                <a href="https://www.instagram.com/eloise_robert_dev/" target="_blank" rel="noopener">📸 Instagram</a>
+            </p>
             <p>© 2026 Eloise Robert · Fait main en HTML, CSS & JS · 🕹️ Insert coin</p>
         </footer>
     </div>
 
     <!-- Notification de succès -->
     <div class="toast-zone" id="toast-zone" aria-live="polite"></div>
+
+    <!-- Réglages d'accessibilité -->
+    <dialog class="a11y-dialog panel" id="a11y-dialog" aria-labelledby="a11y-title">
+        <form method="dialog" class="a11y-form" id="a11y-form">
+            <header class="a11y-head">
+                <h2 id="a11y-title" class="panel-title">♿ Options d'accessibilité</h2>
+                <button type="submit" class="hud-btn" aria-label="Fermer les options">✕</button>
+            </header>
+
+            <fieldset class="a11y-group">
+                <legend>Police du texte</legend>
+                <label class="a11y-choice"><input type="radio" name="font" value="pixel"> <span><strong>Pixel</strong> — style rétro d'origine</span></label>
+                <label class="a11y-choice"><input type="radio" name="font" value="lexend"> <span class="font-preview-lexend"><strong>Lexend</strong> — conçue pour faciliter la lecture</span></label>
+                <label class="a11y-choice"><input type="radio" name="font" value="dyslexic"> <span class="font-preview-dyslexic"><strong>OpenDyslexic</strong> — pensée pour la dyslexie</span></label>
+            </fieldset>
+
+            <fieldset class="a11y-group">
+                <legend>Couleurs</legend>
+                <label class="a11y-choice"><input type="radio" name="theme" value="neon"> <span>Néon</span></label>
+                <label class="a11y-choice"><input type="radio" name="theme" value="gameboy"> <span>Game Boy</span></label>
+                <label class="a11y-choice"><input type="radio" name="theme" value="console"> <span>Console (clair)</span></label>
+                <label class="a11y-choice"><input type="radio" name="theme" value="lave"> <span>Lave</span></label>
+                <label class="a11y-choice"><input type="radio" name="theme" value="access"> <span><strong>Daltonisme</strong> — couleurs distinguables par tous, contraste renforcé</span></label>
+            </fieldset>
+
+            <fieldset class="a11y-group">
+                <legend>Lecture & confort</legend>
+                <label class="a11y-choice"><input type="checkbox" name="spacing"> <span>Texte plus espacé (lignes, lettres et mots)</span></label>
+                <label class="a11y-choice"><input type="checkbox" name="crt"> <span>Effet écran cathodique (lignes horizontales)</span></label>
+                <label class="a11y-choice"><input type="checkbox" name="motion"> <span>Animations (clignotements, texte qui s'écrit…)</span></label>
+            </fieldset>
+
+            <div class="a11y-actions">
+                <button type="button" class="pixel-btn alt" id="a11y-reset">↺ Réglages par défaut</button>
+                <button type="submit" class="pixel-btn">✔ Valider</button>
+            </div>
+        </form>
+    </dialog>
 
     <script src="script.js"></script>
 </body>

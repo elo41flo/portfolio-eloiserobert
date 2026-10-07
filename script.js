@@ -13,7 +13,11 @@ function loadSave() {
     return {};
 }
 
-const save = Object.assign({ xp: 0, visited: [], achievements: [], sound: false, theme: 'neon', snakeBest: 0 }, loadSave());
+const save = Object.assign({
+    xp: 0, visited: [], achievements: [], sound: false, theme: 'neon', snakeBest: 0,
+    // Accessibilité
+    font: 'pixel', spacing: false, crt: true, motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}, loadSave());
 
 function persist() {
     try {
@@ -127,15 +131,15 @@ updateClock();
 const ACHIEVEMENTS = [
     { id: 'start', icon: '🕹️', name: 'Insert Coin', desc: 'Lancer la partie.' },
     { id: 'profil', icon: '🧙‍♀️', name: 'Enchantée !', desc: 'Consulter la fiche personnage.' },
-    { id: 'coder', icon: '⌨️', name: 'Explorateur·rice de donjon', desc: 'Visiter les projets VS Code.' },
+    { id: 'coder', icon: '⌨️', name: 'Exploration du donjon', desc: 'Visiter les projets VS Code.' },
     { id: 'filter', icon: '🔎', name: 'Fin limier', desc: 'Filtrer les projets par techno.' },
     { id: 'figma', icon: '🎨', name: 'Critique d\'art', desc: 'Charger une maquette Figma.' },
-    { id: 'trophy', icon: '🎖️', name: 'Chasseur·se de badges', desc: 'Visiter la salle des badges.' },
+    { id: 'trophy', icon: '🎖️', name: 'Chasse aux badges', desc: 'Visiter la salle des badges.' },
     { id: 'bonus', icon: '🍄', name: 'Niveau caché', desc: 'Trouver le niveau bonus.' },
     { id: 'contact', icon: '💾', name: 'Partie sauvegardée', desc: 'Envoyer un message.' },
     { id: 'all', icon: '⭐', name: '100 % complété', desc: 'Visiter tous les niveaux de la carte.' },
     { id: 'theme', icon: '🎨', name: 'Styliste', desc: 'Changer le thème de couleurs.' },
-    { id: 'snake', icon: '🐍', name: 'Chasseur·se de bugs', desc: 'Atteindre 10 points au Snake.' },
+    { id: 'snake', icon: '🐍', name: 'Chasse aux bugs', desc: 'Atteindre 10 points au Snake.' },
     { id: 'night', icon: '🦉', name: 'Oiseau de nuit', desc: 'Jouer entre 22 h et 6 h.' },
     { id: 'konami', icon: '🌈', name: 'Code secret', desc: '↑ ↑ ↓ ↓ ← → ← → B A' }
 ];
@@ -222,7 +226,18 @@ const SCREEN_ACHIEVEMENTS = {
 function renderClearedLevels() {
     levelLinks.forEach(link => {
         const id = link.getAttribute('href').slice(1);
-        link.classList.toggle('cleared', save.visited.includes(id));
+        const cleared = save.visited.includes(id);
+        link.classList.toggle('cleared', cleared);
+
+        // Repère visible sans la couleur (étoile pleine / vide) et lu par les lecteurs d'écran
+        link.querySelector('.level-star').textContent = cleared ? '★' : '☆';
+        let status = link.querySelector('.level-status');
+        if (!status) {
+            status = document.createElement('span');
+            status.className = 'visually-hidden level-status';
+            link.appendChild(status);
+        }
+        status.textContent = cleared ? ' (niveau visité)' : '';
     });
 }
 
@@ -305,6 +320,9 @@ document.addEventListener('keydown', (e) => {
 
     const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
 
+    // Échap dans la fenêtre d'accessibilité la ferme seulement
+    if (a11yDialog.open) return;
+
     if (e.key === 'Escape' && !typing && location.hash && location.hash !== '#map') {
         sfx.back();
         location.hash = 'map';
@@ -340,7 +358,7 @@ function startTypewriter() {
     clearInterval(typeTimer);
     typeEl.classList.remove('done');
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!save.motion) {
         typeEl.textContent = text;
         typeEl.classList.add('done');
         return;
@@ -382,13 +400,17 @@ document.querySelectorAll('.item').forEach(item => {
 
 /* --- 11. FILTRES DES PROJETS VS CODE --- */
 const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(b => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
 const projects = document.querySelectorAll('[data-screen="vscode"] .cartridge');
 const emptyMsg = document.getElementById('empty-msg');
 
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         const filter = btn.dataset.filter;
-        filterBtns.forEach(b => b.classList.toggle('active', b === btn));
+        filterBtns.forEach(b => {
+            b.classList.toggle('active', b === btn);
+            b.setAttribute('aria-pressed', String(b === btn));
+        });
 
         let visible = 0;
         projects.forEach(p => {
@@ -489,7 +511,8 @@ const THEMES = [
     { id: 'neon', name: 'Néon' },
     { id: 'gameboy', name: 'Game Boy' },
     { id: 'console', name: 'Console' },
-    { id: 'lave', name: 'Lave' }
+    { id: 'lave', name: 'Lave' },
+    { id: 'access', name: 'Daltonisme' }
 ];
 const themeBtn = document.getElementById('theme-btn');
 const themeName = document.getElementById('theme-name');
@@ -509,6 +532,7 @@ function applyTheme(id) {
     document.querySelector('meta[name="theme-color"]').setAttribute('content', bg);
 
     drawSnake(); // le jeu reprend les couleurs du thème
+    syncA11yForm();
 }
 
 themeBtn.addEventListener('click', () => {
@@ -573,7 +597,7 @@ function drawSnake() {
         grid: cssVar('--panel'),
         body: cssVar('--green'),
         head: cssVar('--yellow'),
-        bug: cssVar('--pink')
+        bug: cssVar('--bug')
     };
 
     ctx.fillStyle = colors.bg;
@@ -713,7 +737,7 @@ const KEY_DIRS = {
 
 document.addEventListener('keydown', (e) => {
     const onArcade = !document.querySelector('[data-screen="arcade"]').hidden;
-    if (!onArcade || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (!onArcade || a11yDialog.open || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
 
@@ -759,8 +783,79 @@ document.addEventListener('visibilitychange', () => {
 canvas.tabIndex = 0;
 resetSnake();
 
+/* --- 18. OPTIONS D'ACCESSIBILITÉ --- */
+const a11yDialog = document.getElementById('a11y-dialog');
+const a11yForm = document.getElementById('a11y-form');
+const a11yBtn = document.getElementById('a11y-btn');
+
+// Applique les réglages sur <html> (le CSS s'occupe du reste)
+function applyA11y() {
+    const root = document.documentElement;
+    if (save.font === 'pixel') delete root.dataset.font; else root.dataset.font = save.font;
+    if (save.spacing) root.dataset.spacing = 'on'; else delete root.dataset.spacing;
+    if (save.crt) delete root.dataset.crt; else root.dataset.crt = 'off';
+    if (save.motion) delete root.dataset.motion; else root.dataset.motion = 'off';
+
+    // Sans animation, le message d'accueil s'affiche directement
+    if (!save.motion) {
+        clearInterval(typeTimer);
+        typeEl.textContent = typeEl.dataset.text;
+        typeEl.classList.add('done');
+    }
+    syncA11yForm();
+}
+
+// Coche dans la fenêtre les options actuellement actives
+function syncA11yForm() {
+    a11yForm.elements.font.value = save.font;
+    a11yForm.elements.theme.value = save.theme;
+    a11yForm.elements.spacing.checked = save.spacing;
+    a11yForm.elements.crt.checked = save.crt;
+    a11yForm.elements.motion.checked = save.motion;
+}
+
+// Chaque changement s'applique immédiatement (aperçu en direct)
+a11yForm.addEventListener('change', (e) => {
+    const { name, value, checked, type } = e.target;
+    if (name === 'theme') {
+        save.theme = value;
+        applyTheme(value);
+        unlock('theme');
+    } else {
+        save[name] = type === 'checkbox' ? checked : value;
+        applyA11y();
+    }
+    persist();
+});
+
+document.getElementById('a11y-reset').addEventListener('click', () => {
+    Object.assign(save, {
+        font: 'pixel', spacing: false, crt: true, theme: 'neon',
+        motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    });
+    persist();
+    applyTheme(save.theme);
+    applyA11y();
+});
+
+a11yBtn.addEventListener('click', () => {
+    pauseSnake();
+    syncA11yForm();
+    a11yDialog.showModal();
+    sfx.select();
+});
+
+// Retour du focus sur le bouton à la fermeture
+a11yDialog.addEventListener('close', () => a11yBtn.focus());
+
+// Clic en dehors de la fenêtre = fermeture
+a11yDialog.addEventListener('click', (e) => {
+    if (e.target === a11yDialog) a11yDialog.close();
+});
+
 /* --- INITIALISATION --- */
 applyTheme(save.theme);
+applyA11y();
 renderBest();
 renderXp();
 renderAchievements();
