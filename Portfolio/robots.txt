@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://portfolio-er.erobert.dev-campus.fr/sitemap.xml
