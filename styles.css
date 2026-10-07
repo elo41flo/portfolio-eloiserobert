@@ -1673,6 +1673,11 @@ body.rainbow .panel {
     margin-bottom: 8px;
 }
 
+.job-desc {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+}
+
 .job .chips li {
     font-size: 1rem;
     padding: 0 8px;
