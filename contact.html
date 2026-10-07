@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et affichage responsive -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Référencement -->
+    <title>Contact — Eloise Robert, développeuse web</title>
+    <meta name="description" content="Contacter Eloise Robert pour un devis de site internet, une proposition de stage BTS SIO SLAM ou toute question.">
+    <meta name="author" content="Eloise Robert">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0d0b1e">
+    <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/contact.html">
+
+    <!-- Préférences (thème, accessibilité, mode) + en-tête et pied de page communs -->
+    <script src="layout.js"></script>
+
+    <!-- Open Graph (aperçus sur les réseaux sociaux) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Eloise Robert — Portfolio">
+    <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/contact.html">
+    <meta property="og:title" content="Contact — Eloise Robert, développeuse web">
+    <meta property="og:description" content="Contacter Eloise Robert pour un devis de site internet, une proposition de stage BTS SIO SLAM ou toute question.">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
+    <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon pixel (manette) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body data-page="contact">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div id="game" class="game">
+        <site-header></site-header>
+
+        <main id="main" class="stage" tabindex="-1">
+            <section class="screen" data-screen="contact" aria-labelledby="contact-title">
+                <div class="screen-head">
+                    <a href="index.html" class="back-btn">◀ Retour</a>
+                    <h2 id="contact-title" class="screen-title"><span class="world">3-3</span> Point de sauvegarde</h2>
+                </div>
+
+                <div class="contact-layout">
+                    <form class="panel contact-form" id="contact-form" action="https://formspree.io/f/mbdrppdw" method="POST">
+                        <h3 class="panel-title">💾 Envoyer un message</h3>
+                        <div class="field">
+                            <label for="name">Nom du joueur</label>
+                            <input type="text" name="nom" id="name" placeholder="Ton nom" autocomplete="name" required>
+                        </div>
+                        <div class="field">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" id="email" placeholder="Ton adresse email" autocomplete="email" required>
+                        </div>
+                        <div class="field">
+                            <label for="objet">Objet</label>
+                            <select name="objet" id="objet" required>
+                                <option value="">— Choisis un objet —</option>
+                                <optgroup label="Demande de devis">
+                                    <option value="devis">Devis — je ne sais pas encore</option>
+                                    <option value="devis-vitrine">Devis — Site vitrine</option>
+                                    <option value="devis-wordpress">Devis — Site WordPress</option>
+                                    <option value="devis-ecommerce">Devis — Site e-commerce</option>
+                                    <option value="devis-refonte">Devis — Refonte & optimisation</option>
+                                </optgroup>
+                                <option value="stage">Proposition de stage</option>
+                                <option value="autre">Question / autre</option>
+                            </select>
+                            <input type="hidden" name="_subject" id="subject" value="Nouveau message depuis le portfolio">
+                        </div>
+                        <div class="field">
+                            <label for="message">Message</label>
+                            <textarea name="message" id="message" rows="5" placeholder="Bonjour Éloïse…" required></textarea>
+                        </div>
+                        <button type="submit" class="pixel-btn big">Sauvegarder & envoyer 📨</button>
+                        <p class="form-status" id="form-status" role="status"></p>
+                    </form>
+
+                    <div class="contact-side">
+                        <a href="mailto:elo.robert41@gmail.com" class="panel contact-pill"><span>📧</span> elo.robert41@gmail.com</a>
+                        <a href="https://www.linkedin.com/in/eloise-robert-0b36902a6" target="_blank" rel="noopener" class="panel contact-pill"><span>🔗</span> LinkedIn</a>
+                        <a href="https://github.com/elo41flo" target="_blank" rel="noopener" class="panel contact-pill"><span>🐙</span> GitHub</a>
+                        <a href="https://www.instagram.com/eloise_robert_dev/" target="_blank" rel="noopener" class="panel contact-pill"><span>📸</span> Instagram · @eloise_robert_dev</a>
+                        <div class="dialog-box">
+                            <span class="dialog-name">ASTUCE</span>
+                            <p>Je réponds généralement en moins de 48 h. Ta partie est entre de bonnes mains !</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <site-footer></site-footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

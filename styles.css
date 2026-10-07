@@ -2,6 +2,37 @@
    PORTFOLIO ELOÏSE ROBERT — THÈME JEU VIDÉO RÉTRO
    ========================================================= */
 
+/* --- 0. POLICES (hébergées sur le site, jeu de caractères latin uniquement) --- */
+/* Un navigateur ne télécharge une police que si elle est réellement utilisée :
+   Lexend et OpenDyslexic ne coûtent rien tant que personne ne les choisit. */
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('fonts/press-start-2p-latin.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'VT323';
+    src: url('fonts/vt323-latin.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Lexend';
+    src: url('fonts/lexend-latin-variable.woff2') format('woff2');
+    font-weight: 400 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'OpenDyslexic';
+    src: url('fonts/opendyslexic-latin-400.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
 /* --- 1. VARIABLES --- */
 :root {
     --bg: #0d0b1e;
@@ -373,8 +404,8 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     align-items: center;
     gap: 16px;
     padding: 10px 20px;
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    backdrop-filter: blur(6px);
+    background: color-mix(in srgb, var(--bg) 97%, transparent);
+    /* pas de flou d'arrière-plan : coûteux pour la carte graphique à chaque défilement */
     border-bottom: var(--px) solid var(--border);
     font-family: var(--font-pixel);
     font-size: 0.6rem;
@@ -505,7 +536,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 
 .stage-banner-icon {
     font-size: 1.6rem;
-    animation: bob 1.2s steps(2) infinite;
+    animation: bob 1.2s steps(2) 3;
 }
 
 .stage-banner-actions {
@@ -639,7 +670,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     right: 14px;
     bottom: 6px;
     color: var(--yellow);
-    animation: blink 0.8s steps(1) infinite;
+    animation: blink 0.8s steps(1) 6;
 }
 
 .typewriter::after {
@@ -685,7 +716,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 
 .level:hover .level-icon,
 .level:focus-visible .level-icon {
-    animation: bob 0.5s steps(2) infinite;
+    animation: bob 0.5s steps(2) 4;
 }
 
 .level:focus-visible::before {
@@ -696,7 +727,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     transform: translateY(-50%);
     color: var(--yellow);
     font-size: 1.1rem;
-    animation: blink 0.6s steps(1) infinite;
+    animation: blink 0.6s steps(1) 6;
 }
 
 .level-num {
@@ -902,7 +933,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 
 .timeline-item.current::before {
     background: var(--green);
-    animation: blink 1s steps(1) infinite;
+    animation: blink 1s steps(1) 4;
 }
 
 .timeline-status {
@@ -1233,13 +1264,17 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     padding-top: 26px;
 }
 
+.monster:hover .monster-icon {
+    animation: bob 1.4s steps(2) infinite;
+}
+
 .monster-icon {
     position: absolute;
     top: -18px;
     right: 16px;
     font-size: 2.2rem;
     filter: drop-shadow(3px 3px 0 #000);
-    animation: bob 1.4s steps(2) infinite;
+    /* animation au survol seulement (voir .monster:hover) */
 }
 
 /* --- 9. GITHUB --- */
@@ -2362,12 +2397,6 @@ body.rainbow .panel {
     margin: -6px 0 14px;
 }
 
-.gh-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-    color: var(--yellow) !important;
-}
 
 .repo-meta {
     display: flex;
@@ -2483,8 +2512,8 @@ body.rainbow .panel {
     align-items: center;
     gap: 10px 24px;
     padding: 12px 20px;
-    background: color-mix(in srgb, var(--bg) 94%, transparent);
-    backdrop-filter: blur(6px);
+    background: color-mix(in srgb, var(--bg) 97%, transparent);
+    /* pas de flou d'arrière-plan (économie d'énergie) */
     border-bottom: var(--px) solid var(--border);
 }
 
@@ -2505,25 +2534,20 @@ body.rainbow .panel {
     text-underline-offset: 3px;
 }
 
-/* Pas d'écran titre, de HUD ni d'effets : tout le contenu sur une seule page */
-:root[data-mode="classic"] :is(.title-screen, .hud, .crt, .back-btn, .level-up, .secret-hint, .toast-zone) {
+/* Pas d'écran titre, de HUD ni d'effets de jeu ; la carte sert de sommaire */
+:root[data-mode="classic"] :is(.title-screen, .hud, .crt, .back-btn, .level-up, .secret-hint, .toast-zone,
+    .intro-dialog, .controls-hint, .level-star) {
     display: none !important;
 }
 
-:root[data-mode="classic"] .screen:not([data-classic="hide"]) {
-    display: block !important;
+:root[data-mode="classic"] .screen {
     animation: none;
-    scroll-margin-top: 90px;
 }
 
-:root[data-mode="classic"] .screen[data-classic="hide"] {
-    display: none !important;
-}
-
-:root[data-mode="classic"] .screen:not([data-classic="hide"]) ~ .screen:not([data-classic="hide"]) {
-    margin-top: 48px;
-    padding-top: 40px;
-    border-top: var(--px) dashed var(--border);
+/* En-tête et pied de page communs (layout.js) : n'ajoutent pas de boîte à la mise en page */
+site-header,
+site-footer {
+    display: contents;
 }
 
 /* --- 19. ACCESSIBILITÉ : POLICES LISIBLES (dyslexie) --- */

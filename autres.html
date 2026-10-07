@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et affichage responsive -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Référencement -->
+    <title>Plus sur moi — Eloise Robert</title>
+    <meta name="description" content="Outils de productivité, optimisation web et loisirs d'Eloise Robert, développeuse web.">
+    <meta name="author" content="Eloise Robert">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0d0b1e">
+    <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/autres.html">
+
+    <!-- Préférences (thème, accessibilité, mode) + en-tête et pied de page communs -->
+    <script src="layout.js"></script>
+
+    <!-- Open Graph (aperçus sur les réseaux sociaux) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Eloise Robert — Portfolio">
+    <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/autres.html">
+    <meta property="og:title" content="Plus sur moi — Eloise Robert">
+    <meta property="og:description" content="Outils de productivité, optimisation web et loisirs d'Eloise Robert, développeuse web.">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
+    <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon pixel (manette) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body data-page="autres">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div id="game" class="game">
+        <site-header></site-header>
+
+        <main id="main" class="stage" tabindex="-1">
+            <section class="screen" data-screen="autres" aria-labelledby="autres-title">
+                <div class="screen-head">
+                    <a href="index.html" class="back-btn">◀ Retour</a>
+                    <h2 id="autres-title" class="screen-title"><span class="world">BONUS</span> Quêtes secondaires</h2>
+                </div>
+                <div class="card-grid">
+                    <article class="panel quest-card">
+                        <header class="quest-head"><h3>Productivité</h3><span class="tag" style="--t:#0078d4">Pro</span></header>
+                        <p>Maîtrise de la <strong>suite Microsoft 365</strong> pour la gestion de documents et de <strong>Teams</strong> pour la communication collaborative en équipe.</p>
+                    </article>
+                    <article class="panel quest-card">
+                        <header class="quest-head"><h3>Optimisation web</h3><span class="tag" style="--t:#9aa0a6">Outils</span></header>
+                        <p>Utilisation de <strong>XnConvert</strong> pour l'optimisation de masse des images, garantissant des temps de chargement rapides.</p>
+                    </article>
+                    <article class="panel quest-card">
+                        <header class="quest-head"><h3>Détente & gaming</h3><span class="tag" style="--t:#8257e5">Loisirs</span></header>
+                        <p>En ce moment sur :</p>
+                        <ul class="game-list">
+                            <li>🧱 <strong>Minecraft</strong> — créativité & build</li>
+                            <li>📚 <strong>Tiny Bookshop</strong> — gestion & chill</li>
+                        </ul>
+                    </article>
+                </div>
+                <p class="secret-hint">Psst… les vrais joueurs connaissent un certain code. ↑ ↑ ↓ ↓ …</p>
+            </section>
+        </main>
+
+        <site-footer></site-footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

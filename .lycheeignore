@@ -4,10 +4,6 @@
 linkedin\.com
 instagram\.com
 
-# Adresses de "préconnexion" aux polices : la racine du domaine renvoie 404, c'est normal
-^https://fonts\.googleapis\.com/?$
-^https://fonts\.gstatic\.com/?$
-
 # Formspree n'accepte que l'envoi du formulaire (POST)
 formspree\.io
 
@@ -17,3 +13,6 @@ mode=
 # Email et téléphone
 ^mailto:
 ^tel:
+
+# Pages locales avec paramètre (?objet=… pour pré-remplir le formulaire)
+objet=

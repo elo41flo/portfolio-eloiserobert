@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et affichage responsive -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Référencement -->
+    <title>Audit, SEO et éco-conception — Eloise Robert</title>
+    <meta name="description" content="Les outils utilisés par Eloise Robert pour auditer la performance, l'accessibilité, le référencement et l'empreinte environnementale d'un site : Lighthouse, WAVE, Core Web Vitals, EcoIndex.">
+    <meta name="author" content="Eloise Robert">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0d0b1e">
+    <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/audit-seo.html">
+
+    <!-- Préférences (thème, accessibilité, mode) + en-tête et pied de page communs -->
+    <script src="layout.js"></script>
+
+    <!-- Open Graph (aperçus sur les réseaux sociaux) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Eloise Robert — Portfolio">
+    <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/audit-seo.html">
+    <meta property="og:title" content="Audit, SEO et éco-conception — Eloise Robert">
+    <meta property="og:description" content="Les outils utilisés par Eloise Robert pour auditer la performance, l'accessibilité, le référencement et l'empreinte environnementale d'un site : Lighthouse, WAVE, Core Web Vitals, EcoIndex.">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
+    <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon pixel (manette) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body data-page="seo">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div id="game" class="game">
+        <site-header></site-header>
+
+        <main id="main" class="stage" tabindex="-1">
+            <section class="screen" data-screen="seo" aria-labelledby="seo-title">
+                <div class="screen-head">
+                    <a href="index.html" class="back-btn">◀ Retour</a>
+                    <h2 id="seo-title" class="screen-title"><span class="world">2-2</span> Bestiaire d'outils</h2>
+                </div>
+                <p class="screen-intro">Les outils que j'invoque pour auditer la performance, l'accessibilité et l'empreinte d'un site.</p>
+                <div class="card-grid">
+                    <article class="panel monster">
+                        <span class="monster-icon">🚦</span>
+                        <header class="quest-head"><h3>Lighthouse</h3><span class="tag" style="--t:#0cce6b">Performance</span></header>
+                        <p>Outil de Google pour mesurer la performance, l'accessibilité et les bonnes pratiques SEO d'une page web.</p>
+                    </article>
+                    <article class="panel monster">
+                        <span class="monster-icon">🌊</span>
+                        <header class="quest-head"><h3>WAVE</h3><span class="tag" style="--t:#4ea8ff">Accessibilité</span></header>
+                        <p>Outil d'évaluation de l'accessibilité web permettant d'identifier les erreurs de contraste et de structure (RGAA).</p>
+                    </article>
+                    <article class="panel monster">
+                        <span class="monster-icon">⏱️</span>
+                        <header class="quest-head"><h3>Core Web Vitals</h3><span class="tag" style="--t:#4285f4">UX / Vitesse</span></header>
+                        <p>Indicateurs clés de Google (LCP, INP, CLS) mesurant l'expérience utilisateur réelle : chargement, réactivité et stabilité.</p>
+                    </article>
+                    <article class="panel monster">
+                        <span class="monster-icon">🌱</span>
+                        <header class="quest-head"><h3>EcoIndex</h3><span class="tag" style="--t:#3cff8f">Éco-conception</span></header>
+                        <p>Mesure de l'empreinte et de la performance environnementale d'une page web.</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <site-footer></site-footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

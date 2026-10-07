@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et affichage responsive -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Référencement -->
+    <title>Projets de développement — Eloise Robert</title>
+    <meta name="description" content="Projets web d'Eloise Robert : Caf'Thé (React, Node.js, Laravel), Fleur de Pau (e-commerce), app santé mentale, extension de navigateur et sites vitrines.">
+    <meta name="author" content="Eloise Robert">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0d0b1e">
+    <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/projets.html">
+
+    <!-- Préférences (thème, accessibilité, mode) + en-tête et pied de page communs -->
+    <script src="layout.js"></script>
+
+    <!-- Open Graph (aperçus sur les réseaux sociaux) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Eloise Robert — Portfolio">
+    <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/projets.html">
+    <meta property="og:title" content="Projets de développement — Eloise Robert">
+    <meta property="og:description" content="Projets web d'Eloise Robert : Caf'Thé (React, Node.js, Laravel), Fleur de Pau (e-commerce), app santé mentale, extension de navigateur et sites vitrines.">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
+    <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon pixel (manette) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body data-page="vscode">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div id="game" class="game">
+        <site-header></site-header>
+
+        <main id="main" class="stage" tabindex="-1">
+            <section class="screen" data-screen="vscode" aria-labelledby="vscode-title">
+                <div class="screen-head">
+                    <a href="index.html" class="back-btn">◀ Retour</a>
+                    <h2 id="vscode-title" class="screen-title"><span class="world">1-3</span> Donjon du code</h2>
+                </div>
+
+                <div class="filters" role="group" aria-label="Filtrer par technologie">
+                    <button type="button" class="filter-btn active" data-filter="all">Tous</button>
+                    <button type="button" class="filter-btn" data-filter="html">HTML</button>
+                    <button type="button" class="filter-btn" data-filter="css">CSS</button>
+                    <button type="button" class="filter-btn" data-filter="js">JS</button>
+                    <button type="button" class="filter-btn" data-filter="react">React</button>
+                    <button type="button" class="filter-btn" data-filter="node">Node.js</button>
+                    <button type="button" class="filter-btn" data-filter="laravel">Laravel</button>
+                </div>
+
+                <div class="card-grid">
+                    <article class="panel cartridge" data-tech="laravel php">
+                        <div class="cart-cover" style="--a:#ff2d20; --b:#6b0f0a">☕<span class="cart-label">CAF'THÉ</span></div>
+                        <header class="quest-head"><h3>Caf'Thé — Dashboard</h3><div class="badges"><span class="badge laravel">Laravel</span></div></header>
+                        <p>Projet pédagogique pour la certification Back-end (passage en avril 2027).</p>
+                        <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="react css node">
+                        <div class="cart-cover" style="--a:#61dafb; --b:#123a4a">🍵<span class="cart-label">CAF'THÉ</span></div>
+                        <header class="quest-head"><h3>Caf'Thé — E-shop</h3><div class="badges"><span class="badge react">React</span><span class="badge css">CSS</span><span class="badge node">Node.js</span></div></header>
+                        <p>Projet pédagogique pour la certification Front-end (obtenue).</p>
+                        <div class="actions">
+                            <a href="https://github.com/elo41flo/cafthe" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code front</a>
+                            <a href="https://github.com/elo41flo/cafthe-back" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code back</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="react json">
+                        <div class="cart-cover" style="--a:#b28dff; --b:#2a1a52">💊<span class="cart-label">SANTÉ</span></div>
+                        <header class="quest-head"><h3>App santé mentale</h3><div class="badges"><span class="badge react">React</span><span class="badge json">JSON</span></div></header>
+                        <p>Application web pour gérer ses médicaments, les urgences et faire des comptes rendus de symptômes à son médecin.</p>
+                        <div class="actions">
+                            <a href="https://app-sante-mentale.vercel.app/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/app-sante-mentale" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js json">
+                        <div class="cart-cover" style="--a:#ffd319; --b:#4a3a05">⌨️<span class="cart-label">SHORTCUTS</span></div>
+                        <header class="quest-head"><h3>Extension Raccourcis</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge json">JSON</span></div></header>
+                        <p>Extension de navigateur pour afficher les raccourcis clavier de l'ordinateur.</p>
+                        <div class="actions"><a href="https://github.com/elo41flo/extensions_navigateurs/tree/main/Raccourcis" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code & installation</a></div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js node">
+                        <div class="cart-cover" style="--a:#ff8fc7; --b:#4a1030">🌸<span class="cart-label">FLEUR DE PAU</span></div>
+                        <header class="quest-head"><h3>Fleur de Pau</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span></div></header>
+                        <p>Projet bénévole (2025) : boutique artisanale avec interface d'administration et système de paiement sécurisé.</p>
+                        <div class="actions">
+                            <a href="https://www.fleurdepau.fr" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/FleurdePau" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js">
+                        <div class="cart-cover" style="--a:#e0e0e0; --b:#222">🖋️<span class="cart-label">ENCRE & ART</span></div>
+                        <header class="quest-head"><h3>Encre & Art</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span></div></header>
+                        <p>Site événementiel fictif (salon de tatouage, 2025) : site complet avec interactions JavaScript et intégration d'une carte Google Maps.</p>
+                        <div class="actions">
+                            <a href="https://elo41flo.github.io/encre-art/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/encre-art" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js">
+                        <div class="cart-cover" style="--a:#ffb000; --b:#3d2600">⚡<span class="cart-label">ELEC'RÉNOV</span></div>
+                        <header class="quest-head"><h3>Elec'Rénov</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span></div></header>
+                        <p>Site vitrine fictif (2025) : présence en ligne d'un électricien local, axée sur la lisibilité et la prise de contact.</p>
+                        <div class="actions">
+                            <a href="https://elo41flo.github.io/elo41flo.github.io-elecrenov/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/elo41flo.github.io-elecrenov" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
+                        </div>
+                    </article>
+                </div>
+                <p class="empty-msg" id="empty-msg" hidden>Aucun projet trouvé… Ce coffre est vide !</p>
+            </section>
+        </main>
+
+        <site-footer></site-footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

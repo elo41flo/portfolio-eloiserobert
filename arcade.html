@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et affichage responsive -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Référencement -->
+    <title>Arcade : jeu Snake — Portfolio d'Eloise Robert</title>
+    <meta name="description" content="Le mini-jeu Snake du portfolio d'Eloise Robert : mange les bugs, bats ton record et partage ton score.">
+    <meta name="author" content="Eloise Robert">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0d0b1e">
+    <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/arcade.html">
+
+    <!-- Préférences (thème, accessibilité, mode) + en-tête et pied de page communs -->
+    <script src="layout.js"></script>
+
+    <!-- Open Graph (aperçus sur les réseaux sociaux) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Eloise Robert — Portfolio">
+    <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/arcade.html">
+    <meta property="og:title" content="Arcade : jeu Snake — Portfolio d'Eloise Robert">
+    <meta property="og:description" content="Le mini-jeu Snake du portfolio d'Eloise Robert : mange les bugs, bats ton record et partage ton score.">
+    <meta name="twitter:card" content="summary">
+
+    <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
+    <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon pixel (manette) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body data-page="arcade">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div id="game" class="game">
+        <site-header></site-header>
+
+        <main id="main" class="stage" tabindex="-1">
+            <section class="screen" data-screen="arcade" aria-labelledby="arcade-title">
+                <div class="screen-head">
+                    <a href="index.html" class="back-btn">◀ Retour</a>
+                    <h2 id="arcade-title" class="screen-title"><span class="world">4-2</span> Salle d'arcade</h2>
+                </div>
+
+                <div class="arcade">
+                    <div class="arcade-cabinet panel">
+                        <div class="arcade-scores">
+                            <span>SCORE <strong id="snake-score">0</strong></span>
+                            <span>RECORD <strong id="snake-best">0</strong></span>
+                        </div>
+                        <div class="arcade-screen">
+                            <canvas id="snake" width="400" height="400" role="img" aria-label="Jeu Snake : mange les bugs pour grandir">Ton navigateur ne supporte pas le jeu.</canvas>
+                            <div class="arcade-overlay" id="snake-overlay">
+                                <p class="arcade-msg" id="snake-msg">SNAKE.EXE</p>
+                                <button type="button" class="pixel-btn" id="snake-start">▶ Jouer</button>
+                                <button type="button" class="pixel-btn alt" id="snake-share" hidden>📤 Partager mon score</button>
+                            </div>
+                        </div>
+                        <div class="dpad" role="group" aria-label="Croix directionnelle">
+                            <button type="button" class="dpad-btn up" data-dir="up" aria-label="Haut">▲</button>
+                            <button type="button" class="dpad-btn left" data-dir="left" aria-label="Gauche">◀</button>
+                            <button type="button" class="dpad-btn right" data-dir="right" aria-label="Droite">▶</button>
+                            <button type="button" class="dpad-btn down" data-dir="down" aria-label="Bas">▼</button>
+                        </div>
+                    </div>
+
+                    <div class="arcade-rules">
+                        <div class="dialog-box">
+                            <span class="dialog-name">RÈGLES</span>
+                            <p>Guide le serpent de code 🐍 et mange les bugs 🐛 pour grandir. Ne te mords pas la queue et évite les murs !</p>
+                        </div>
+                        <p class="controls-hint">
+                            <kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd> ou <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> diriger ·
+                            <kbd>Espace</kbd> pause
+                        </p>
+                        <p class="screen-intro">Sur mobile : glisse sur l'écran de jeu ou utilise la croix. Atteins 10 points pour débloquer un succès… et ton record s'affiche sur l'écran titre !</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <site-footer></site-footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

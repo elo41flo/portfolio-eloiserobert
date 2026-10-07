@@ -1,6 +1,13 @@
 /* =========================================================
    PORTFOLIO ELOÏSE ROBERT — LOGIQUE DU JEU
+   Le site est découpé en une page par niveau. Ce script est commun à
+   toutes les pages : chaque module ne s'active que sur la page qui le
+   concerne (voir <body data-page="…"> et la liste SITE dans layout.js).
    ========================================================= */
+
+const PAGE = document.body.dataset.page;          // niveau de la page actuelle
+const { pages: PAGES, levels: LEVELS } = window.SITE;
+const $ = id => document.getElementById(id);      // raccourci
 
 /* --- 0. STOCKAGE (sécurisé : peut échouer en navigation privée) --- */
 const SAVE_KEY = 'elo-portfolio-save';
@@ -21,10 +28,13 @@ const save = Object.assign({
 }, loadSave());
 
 // Lien partagé avec ?mode=classique ou ?mode=jeu : on mémorise le choix puis on nettoie l'adresse
-const urlMode = new URLSearchParams(location.search).get('mode');
+const params = new URLSearchParams(location.search);
+const urlMode = params.get('mode');
 if (urlMode === 'classique' || urlMode === 'jeu') {
     save.classic = urlMode === 'classique';
-    history.replaceState(null, '', location.pathname + location.hash);
+    params.delete('mode');
+    const query = params.toString();
+    history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + location.hash);
 }
 
 function persist() {
@@ -33,6 +43,13 @@ function persist() {
     } catch (e) { /* on continue sans sauvegarde */ }
 }
 persist();
+
+// Anciennes adresses du site sur une seule page (index.html#profil…) : redirection vers la bonne page
+if (PAGE === 'map' && location.hash.length > 1) {
+    const hash = location.hash.slice(1);
+    if (hash.startsWith('fiche-')) location.replace(PAGES.e5 + location.hash);
+    else if (PAGES[hash] && hash !== 'map') location.replace(PAGES[hash]);
+}
 
 /* --- 1. AVATAR PIXEL ART (généré en SVG) --- */
 const AVATAR_MAP = [
@@ -116,7 +133,7 @@ const sfx = {
     levelUp: () => [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.12, 'square', i * 0.1))
 };
 
-const soundBtn = document.getElementById('sound-btn');
+const soundBtn = $('sound-btn');
 
 function renderSoundBtn() {
     soundBtn.textContent = save.sound ? '🔊' : '🔇';
@@ -133,13 +150,14 @@ soundBtn.addEventListener('click', () => {
 renderSoundBtn();
 
 /* --- 3. HORLOGE --- */
-const clockEl = document.getElementById('clock');
+const clockEl = $('clock');
 
+// Une mise à jour par minute, calée sur le changement de minute (au lieu de 60 par minute)
 function updateClock() {
-    const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    if (clockEl.textContent !== time) clockEl.textContent = time;
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    setTimeout(updateClock, (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50);
 }
-setInterval(updateClock, 1000);
 updateClock();
 
 /* --- 4. SUCCÈS --- */
@@ -160,13 +178,15 @@ const ACHIEVEMENTS = [
     { id: 'konami', icon: '🌈', name: 'Code secret', desc: '↑ ↑ ↓ ↓ ← → ← → B A' }
 ];
 
-const toastZone = document.getElementById('toast-zone');
-const achList = document.getElementById('achievements-list');
-document.getElementById('ach-total').textContent = ACHIEVEMENTS.length;
+$('ach-total').textContent = ACHIEVEMENTS.length;
 
 function renderAchievements() {
-    document.getElementById('ach-count').textContent = save.achievements.length;
-    achList.innerHTML = ACHIEVEMENTS.map(a => {
+    $('ach-count').textContent = save.achievements.length;
+
+    // La liste détaillée n'existe que sur la page des succès
+    const list = $('achievements-list');
+    if (!list) return;
+    list.innerHTML = ACHIEVEMENTS.map(a => {
         const unlocked = save.achievements.includes(a.id);
         return `<li class="achievement${unlocked ? ' unlocked' : ''}">
             <span class="ach-icon" aria-hidden="true">${unlocked ? a.icon : '🔒'}</span>
@@ -186,11 +206,19 @@ function unlock(id) {
     renderAchievements();
     addXp(40);
     sfx.coin();
-
     showToast(ach.icon, 'SUCCÈS DÉBLOQUÉ', ach.name);
 }
 
+// Zone de notifications : créée seulement au premier message
 function showToast(icon, label, text) {
+    let zone = $('toast-zone');
+    if (!zone) {
+        zone = document.createElement('div');
+        zone.className = 'toast-zone';
+        zone.id = 'toast-zone';
+        zone.setAttribute('aria-live', 'polite');
+        document.body.appendChild(zone);
+    }
     const toast = document.createElement('div');
     toast.className = 'toast';
     const iconEl = document.createElement('span');
@@ -202,23 +230,20 @@ function showToast(icon, label, text) {
     small.textContent = label;
     body.append(small, text);
     toast.append(iconEl, body);
-    toastZone.appendChild(toast);
+    zone.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
 }
 
 /* --- 5. EXPÉRIENCE & NIVEAU --- */
 const XP_PER_LEVEL = 100;
-const xpFill = document.getElementById('xp-fill');
-const xpText = document.getElementById('xp-text');
-const levelEl = document.getElementById('hud-level');
 
 function renderXp() {
     const level = Math.floor(save.xp / XP_PER_LEVEL) + 1;
     const current = save.xp % XP_PER_LEVEL;
-    levelEl.textContent = level;
-    xpFill.style.setProperty('--v', `${current}%`);
-    document.getElementById('xp-bar').setAttribute('aria-valuenow', current);
-    xpText.textContent = `${current}/${XP_PER_LEVEL}`;
+    $('hud-level').textContent = level;
+    $('xp-fill').style.setProperty('--v', `${current}%`);
+    $('xp-bar').setAttribute('aria-valuenow', current);
+    $('xp-text').textContent = `${current}/${XP_PER_LEVEL}`;
 }
 
 function addXp(amount) {
@@ -238,12 +263,7 @@ function addXp(amount) {
     }
 }
 
-/* --- 6. NAVIGATION ENTRE LES ÉCRANS (routeur par hash) --- */
-const screens = document.querySelectorAll('.screen');
-const levelLinks = document.querySelectorAll('.level');
-const LEVELS = [...levelLinks].map(a => a.getAttribute('href').slice(1));
-const stage = document.getElementById('main');
-
+/* --- 6. VISITE D'UN NIVEAU --- */
 const SCREEN_ACHIEVEMENTS = {
     profil: 'profil',
     vscode: 'coder',
@@ -251,10 +271,37 @@ const SCREEN_ACHIEVEMENTS = {
     autres: 'bonus'
 };
 
+function visitPage() {
+    // Première visite d'un niveau = XP
+    if (LEVELS.includes(PAGE) && !save.visited.includes(PAGE)) {
+        save.visited.push(PAGE);
+        persist();
+        addXp(25);
+        if (LEVELS.every(l => save.visited.includes(l))) unlock('all');
+    }
+    if (SCREEN_ACHIEVEMENTS[PAGE]) unlock(SCREEN_ACHIEVEMENTS[PAGE]);
+    if (PAGE !== 'map') {
+        // Arrivée directe sur un niveau (lien, Google…) : pas d'écran titre en revenant à la carte
+        try {
+            sessionStorage.setItem('elo-last-level', PAGE);
+            sessionStorage.setItem('elo-started', '1');
+        } catch (e) { /* ignore */ }
+    }
+
+    unlock('start');
+    const hour = new Date().getHours();
+    if (hour >= 22 || hour < 6) unlock('night');
+}
+
+/* --- 7. ACCUEIL : ÉCRAN TITRE, CARTE DU MONDE, MESSAGE D'ACCUEIL --- */
+const titleScreen = $('title-screen');
+const levelLinks = document.querySelectorAll('.level');
+const pageKey = href => Object.keys(PAGES).find(k => PAGES[k] === href);
+let started = PAGE !== 'map'; // l'écran titre n'existe que sur l'accueil
+
 function renderClearedLevels() {
     levelLinks.forEach(link => {
-        const id = link.getAttribute('href').slice(1);
-        const cleared = save.visited.includes(id);
+        const cleared = save.visited.includes(pageKey(link.getAttribute('href')));
         link.classList.toggle('cleared', cleared);
 
         // Repère visible sans la couleur (étoile pleine / vide) et lu par les lecteurs d'écran
@@ -269,150 +316,42 @@ function renderClearedLevels() {
     });
 }
 
-function showScreen(name, { focus = true } = {}) {
-    // Lien vers une fiche du module E5 (#fiche-…) : on affiche l'écran E5 puis on ouvre la fiche
-    const fiche = name.startsWith('fiche-') ? document.getElementById(name) : null;
-    if (fiche) name = 'e5';
-
-    // Version classique : tout est déjà affiché, on se contente de défiler
-    if (save.classic) {
-        const section = fiche || document.querySelector(`.screen[data-screen="${name}"]:not([data-classic="hide"])`);
-        if (fiche) fiche.open = true;
-        if (section) section.scrollIntoView({ block: 'start' });
-        else window.scrollTo(0, 0);
-        return;
-    }
-
-    const target = [...screens].find(s => s.dataset.screen === name) ? name : 'map';
-
-    screens.forEach(s => { s.hidden = s.dataset.screen !== target; });
-    window.scrollTo(0, 0);
-
-    // On met le Snake en pause quand on quitte la salle d'arcade
-    if (target !== 'arcade') pauseSnake();
-
-    // Première visite d'un niveau = XP
-    if (LEVELS.includes(target) && !save.visited.includes(target)) {
-        save.visited.push(target);
-        persist();
-        addXp(25);
-        renderClearedLevels();
-        if (LEVELS.every(l => save.visited.includes(l))) unlock('all');
-    }
-    if (SCREEN_ACHIEVEMENTS[target]) unlock(SCREEN_ACHIEVEMENTS[target]);
-
-    // Titre de l'onglet
-    const heading = document.querySelector(`.screen[data-screen="${target}"] .screen-title`);
-    document.title = target === 'map'
-        ? 'Eloise Robert | Développeuse Web Freelance & Étudiante BTS SIO'
-        : `${heading.textContent.replace(/^\S+\s/, '').trim()} | Eloise Robert`;
-
-    if (target === 'map') {
-        startTypewriter();
-        if (focus) {
-            const last = sessionStorage.getItem('elo-last-level');
-            const link = last && document.querySelector(`.level[href="#${last}"]`);
-            (link || levelLinks[0]).focus({ preventScroll: true });
-        }
-    } else {
-        try { sessionStorage.setItem('elo-last-level', target); } catch (e) { /* ignore */ }
-        if (fiche) {
-            fiche.open = true;
-            fiche.scrollIntoView({ block: 'start' });
-            fiche.querySelector('summary').focus({ preventScroll: true });
-        } else if (focus) {
-            stage.focus({ preventScroll: true });
-        }
-    }
+function focusLastLevel() {
+    let last = null;
+    try { last = sessionStorage.getItem('elo-last-level'); } catch (e) { /* ignore */ }
+    const link = last && document.querySelector(`.level[href="${PAGES[last]}"]`);
+    (link || levelLinks[0])?.focus({ preventScroll: true });
 }
-
-window.addEventListener('hashchange', () => {
-    sfx.select();
-    showScreen(location.hash.slice(1) || 'map');
-});
-
-/* --- 7. ÉCRAN TITRE --- */
-const titleScreen = document.getElementById('title-screen');
-const game = document.getElementById('game');
-let started = false;
 
 function startGame() {
     if (started) return;
     started = true;
     sfx.coin();
     titleScreen.classList.add('leaving');
-    game.hidden = false;
     try { sessionStorage.setItem('elo-started', '1'); } catch (e) { /* ignore */ }
-
     setTimeout(() => { titleScreen.hidden = true; }, 600);
-    showScreen(location.hash.slice(1) || 'map');
-    unlock('start');
-
-    const hour = new Date().getHours();
-    if (hour >= 22 || hour < 6) unlock('night');
+    startTypewriter();
+    if (!save.classic) focusLastLevel();
 }
 
-document.getElementById('start-btn').addEventListener('click', startGame);
-titleScreen.addEventListener('click', startGame);
-
-/* --- 8. CLAVIER : flèches sur la carte, Échap pour revenir --- */
-document.addEventListener('keydown', (e) => {
-    if (!started) {
-        // Entrée/Espace lancent le jeu… sauf sur le bouton "Version classique"
-        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement.id !== 'classic-btn') {
-            e.preventDefault();
-            startGame();
-        }
-        return;
-    }
-
-    const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
-
-    // Échap dans une fenêtre (accessibilité, palette) la ferme seulement
-    if (a11yDialog.open || palette.open) return;
-
-    if (e.key === 'Escape' && !typing && location.hash && location.hash !== '#map') {
-        sfx.back();
-        location.hash = 'map';
-        return;
-    }
-
-    // Déplacement dans la grille des niveaux
-    const index = [...levelLinks].indexOf(document.activeElement);
-    if (index === -1) return;
-
-    const grid = document.querySelector('.level-grid');
-    const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
-    const moves = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: columns, ArrowUp: -columns };
-
-    if (moves[e.key] !== undefined) {
-        e.preventDefault();
-        const next = levelLinks[index + moves[e.key]];
-        if (next) {
-            next.focus();
-            sfx.move();
-        }
-    }
-});
-
-levelLinks.forEach(link => link.addEventListener('mouseenter', sfx.move));
-
-/* --- 9. BOÎTE DE DIALOGUE (effet machine à écrire) --- */
+// Message d'accueil (effet machine à écrire)
 const typeEl = document.querySelector('.typewriter');
 let typeTimer = null;
 
+function showFullText() {
+    clearInterval(typeTimer);
+    typeEl.textContent = typeEl.dataset.text;
+    typeEl.classList.add('done');
+}
+
 function startTypewriter() {
+    if (!typeEl) return;
+    if (!save.motion || save.classic) return showFullText();
+
     const text = typeEl.dataset.text;
+    let i = 0;
     clearInterval(typeTimer);
     typeEl.classList.remove('done');
-
-    if (!save.motion) {
-        typeEl.textContent = text;
-        typeEl.classList.add('done');
-        return;
-    }
-
-    let i = 0;
     typeEl.textContent = '';
     typeTimer = setInterval(() => {
         typeEl.textContent = text.slice(0, ++i);
@@ -424,35 +363,78 @@ function startTypewriter() {
     }, 28);
 }
 
-// Clic sur la boîte = afficher tout le texte d'un coup
-document.querySelector('.intro-dialog').addEventListener('click', () => {
-    clearInterval(typeTimer);
-    typeEl.textContent = typeEl.dataset.text;
-    typeEl.classList.add('done');
+if (PAGE === 'map') {
+    $('start-btn').addEventListener('click', startGame);
+    titleScreen.addEventListener('click', startGame);
+    document.querySelector('.intro-dialog').addEventListener('click', showFullText);
+    levelLinks.forEach(link => link.addEventListener('mouseenter', sfx.move));
+
+    // Pas le temps de jouer ? → version classique
+    $('classic-btn').addEventListener('click', (e) => {
+        e.stopPropagation(); // ne pas déclencher "PRESS START"
+        setClassic(true);
+        startGame();
+    });
+}
+
+/* --- 8. CLAVIER --- */
+document.addEventListener('keydown', (e) => {
+    // Écran titre : Entrée / Espace lancent le jeu… sauf sur le bouton "Version classique"
+    if (!started) {
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement.id !== 'classic-btn') {
+            e.preventDefault();
+            startGame();
+        }
+        return;
+    }
+
+    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+    if (document.querySelector('dialog[open]')) return; // Échap ferme d'abord la fenêtre ouverte
+
+    // Échap : retour à la carte du monde
+    if (e.key === 'Escape' && !typing && PAGE !== 'map') {
+        sfx.back();
+        location.href = PAGES.map;
+        return;
+    }
+
+    // Flèches : déplacement dans la grille des niveaux
+    const index = [...levelLinks].indexOf(document.activeElement);
+    if (index === -1) return;
+    const columns = getComputedStyle(document.querySelector('.level-grid')).gridTemplateColumns.split(' ').length;
+    const moves = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: columns, ArrowUp: -columns };
+    if (moves[e.key] !== undefined) {
+        e.preventDefault();
+        const next = levelLinks[index + moves[e.key]];
+        if (next) {
+            next.focus();
+            sfx.move();
+        }
+    }
 });
 
-/* --- 10. INVENTAIRE (infobulle) --- */
-const tooltip = document.getElementById('item-tooltip');
+/* --- 9. PROFIL : INVENTAIRE (infobulle) --- */
+const tooltip = $('item-tooltip');
 const LVL_LABELS = ['', 'Débutante', 'Apprentie', 'Confirmée', 'Experte', 'Maîtresse'];
 
-document.querySelectorAll('.item').forEach(item => {
-    item.tabIndex = 0;
-    const show = () => {
-        const name = item.querySelector('.item-name').textContent;
-        const lvl = Number(item.dataset.lvl);
-        tooltip.innerHTML = `<strong>${name}</strong> — Niveau ${lvl}/5 : ${LVL_LABELS[lvl]} ${'★'.repeat(lvl)}${'☆'.repeat(5 - lvl)}`;
-    };
-    item.addEventListener('mouseenter', show);
-    item.addEventListener('focus', show);
-});
+if (tooltip) {
+    document.querySelectorAll('.item').forEach(item => {
+        item.tabIndex = 0;
+        const show = () => {
+            const name = item.querySelector('.item-name').textContent;
+            const lvl = Number(item.dataset.lvl);
+            tooltip.innerHTML = `<strong>${name}</strong> — Niveau ${lvl}/5 : ${LVL_LABELS[lvl]} ${'★'.repeat(lvl)}${'☆'.repeat(5 - lvl)}`;
+        };
+        item.addEventListener('mouseenter', show);
+        item.addEventListener('focus', show);
+    });
+}
 
-/* --- 11. FILTRES DES PROJETS VS CODE --- */
+/* --- 10. PROJETS : FILTRES PAR TECHNO --- */
 const filterBtns = document.querySelectorAll('.filter-btn');
-filterBtns.forEach(b => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
-const projects = document.querySelectorAll('[data-screen="vscode"] .cartridge');
-const emptyMsg = document.getElementById('empty-msg');
 
 filterBtns.forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.classList.contains('active')));
     btn.addEventListener('click', () => {
         const filter = btn.dataset.filter;
         filterBtns.forEach(b => {
@@ -461,19 +443,19 @@ filterBtns.forEach(btn => {
         });
 
         let visible = 0;
-        projects.forEach(p => {
+        document.querySelectorAll('.cartridge[data-tech]').forEach(p => {
             const show = filter === 'all' || p.dataset.tech.split(' ').includes(filter);
             p.hidden = !show;
             if (show) visible++;
         });
-        emptyMsg.hidden = visible > 0;
+        $('empty-msg').hidden = visible > 0;
 
         sfx.move();
         if (filter !== 'all') unlock('filter');
     });
 });
 
-/* --- 12. MAQUETTES FIGMA CHARGÉES À LA DEMANDE --- */
+/* --- 11. FIGMA : MAQUETTES CHARGÉES À LA DEMANDE --- */
 document.querySelectorAll('.embed').forEach(box => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -494,48 +476,50 @@ document.querySelectorAll('.embed').forEach(box => {
     });
 });
 
-/* --- 13. FORMULAIRE DE CONTACT (Formspree) --- */
-const form = document.getElementById('contact-form');
-const formStatus = document.getElementById('form-status');
+/* --- 12. CONTACT : FORMULAIRE (Formspree) --- */
+const form = $('contact-form');
 
-const objetSelect = document.getElementById('objet');
-const subjectInput = document.getElementById('subject');
+if (form) {
+    const formStatus = $('form-status');
+    const objetSelect = $('objet');
+    const subjectInput = $('subject');
 
-// Les boutons "Me contacter", "Choisir cette offre"… pré-remplissent l'objet
-document.querySelectorAll('[data-objet]').forEach(link => {
-    link.addEventListener('click', () => { objetSelect.value = link.dataset.objet; });
-});
+    // Objet pré-rempli par les liens "Me contacter", "Choisir cette offre"… (contact.html?objet=…)
+    const objet = params.get('objet');
+    if (objet && objetSelect.querySelector(`option[value="${CSS.escape(objet)}"]`)) objetSelect.value = objet;
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    // Objet de l'email reçu (champ spécial reconnu par Formspree)
-    subjectInput.value = `Portfolio — ${objetSelect.selectedOptions[0].textContent}`;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    formStatus.className = 'form-status';
-    formStatus.textContent = 'Sauvegarde en cours…';
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // Objet de l'email reçu (champ spécial reconnu par Formspree)
+        subjectInput.value = `Portfolio — ${objetSelect.selectedOptions[0].textContent}`;
 
-    try {
-        const response = await fetch(form.action, {
-            method: 'POST',
-            body: new FormData(form),
-            headers: { Accept: 'application/json' }
-        });
-        if (!response.ok) throw new Error(response.status);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        formStatus.className = 'form-status';
+        formStatus.textContent = 'Sauvegarde en cours…';
 
-        form.reset();
-        formStatus.classList.add('ok');
-        formStatus.textContent = '✔ Partie sauvegardée ! Ton message a bien été envoyé.';
-        unlock('contact');
-    } catch (err) {
-        formStatus.classList.add('error');
-        formStatus.textContent = '✖ Game over… L\'envoi a échoué. Réessaie ou écris-moi par email.';
-    } finally {
-        submitBtn.disabled = false;
-    }
-});
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { Accept: 'application/json' }
+            });
+            if (!response.ok) throw new Error(response.status);
 
-/* --- 14. CODE KONAMI --- */
+            form.reset();
+            formStatus.classList.add('ok');
+            formStatus.textContent = '✔ Partie sauvegardée ! Ton message a bien été envoyé.';
+            unlock('contact');
+        } catch (err) {
+            formStatus.classList.add('error');
+            formStatus.textContent = '✖ Game over… L\'envoi a échoué. Réessaie ou écris-moi par email.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+/* --- 13. CODE KONAMI --- */
 const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 let konamiPos = 0;
 
@@ -551,8 +535,8 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-/* --- 15. NOUVELLE PARTIE --- */
-document.getElementById('reset-btn').addEventListener('click', () => {
+/* --- 14. SUCCÈS : NOUVELLE PARTIE --- */
+$('reset-btn')?.addEventListener('click', () => {
     if (!confirm('Effacer ta progression et recommencer une nouvelle partie ?')) return;
     save.xp = 0;
     save.visited = [];
@@ -560,11 +544,10 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     persist();
     renderXp();
     renderAchievements();
-    renderClearedLevels();
     sfx.back();
 });
 
-/* --- 16. THÈMES DE COULEURS --- */
+/* --- 15. THÈMES DE COULEURS --- */
 const THEMES = [
     { id: 'neon', name: 'Néon' },
     { id: 'gameboy', name: 'Game Boy' },
@@ -572,24 +555,20 @@ const THEMES = [
     { id: 'lave', name: 'Lave' },
     { id: 'access', name: 'Daltonisme' }
 ];
-const themeBtn = document.getElementById('theme-btn');
-const themeName = document.getElementById('theme-name');
+const themeBtn = $('theme-btn');
 
 function applyTheme(id) {
     const theme = THEMES.find(t => t.id === id) || THEMES[0];
-    if (theme.id === 'neon') {
-        delete document.documentElement.dataset.theme;
-    } else {
-        document.documentElement.dataset.theme = theme.id;
-    }
-    themeName.textContent = theme.name;
+    if (theme.id === 'neon') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme.id;
+
+    $('theme-name').textContent = theme.name;
     themeBtn.setAttribute('aria-label', `Thème : ${theme.name}. Changer de thème`);
 
     // Couleur de la barre du navigateur sur mobile
-    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', bg);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', cssVar('--bg'));
 
-    drawSnake(); // le jeu reprend les couleurs du thème
+    if (canvas) drawSnake(); // le jeu reprend les couleurs du thème
     syncA11yForm();
 }
 
@@ -602,380 +581,410 @@ themeBtn.addEventListener('click', () => {
     unlock('theme');
 });
 
-/* --- 17. MINI-JEU SNAKE --- */
-const canvas = document.getElementById('snake');
-const ctx = canvas.getContext('2d');
-const snakeOverlay = document.getElementById('snake-overlay');
-const snakeMsg = document.getElementById('snake-msg');
-const snakeStartBtn = document.getElementById('snake-start');
-const scoreEl = document.getElementById('snake-score');
-const bestEl = document.getElementById('snake-best');
-const titleHiscore = document.getElementById('title-hiscore');
-
-const CELLS = 20;                       // grille de 20 x 20
-const CELL = canvas.width / CELLS;      // taille d'une case en pixels
-const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
-
-let snake = [];
-let food = null;
-let dir = 'right';
-let dirQueue = [];
-let score = 0;
-let snakeTimer = null;
-let snakeState = 'idle'; // idle | running | paused | over
-
-function renderBest() {
-    bestEl.textContent = save.snakeBest;
-    titleHiscore.textContent = String(save.snakeBest * 100).padStart(6, '0');
-}
-
-function placeFood() {
-    do {
-        food = { x: Math.floor(Math.random() * CELLS), y: Math.floor(Math.random() * CELLS) };
-    } while (snake.some(s => s.x === food.x && s.y === food.y));
-}
-
-function resetSnake() {
-    snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
-    dir = 'right';
-    dirQueue = [];
-    score = 0;
-    scoreEl.textContent = 0;
-    placeFood();
-}
-
 function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-function drawSnake() {
-    const colors = {
-        bg: cssVar('--deep'),
-        grid: cssVar('--panel'),
-        body: cssVar('--green'),
-        head: cssVar('--yellow'),
-        bug: cssVar('--bug')
+/* --- 16. ARCADE : MINI-JEU SNAKE --- */
+const canvas = $('snake');
+let snakeState = 'idle'; // idle | running | paused | over
+let startSnake = () => { location.href = PAGES.arcade + '?play=1'; }; // depuis une autre page
+let pauseSnake = () => {};
+let drawSnake = () => {};
+
+const titleHiscore = $('title-hiscore');
+if (titleHiscore) titleHiscore.textContent = String(save.snakeBest * 100).padStart(6, '0');
+
+if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const snakeOverlay = $('snake-overlay');
+    const snakeMsg = $('snake-msg');
+    const snakeStartBtn = $('snake-start');
+    const shareBtn = $('snake-share');
+    const scoreEl = $('snake-score');
+    const bestEl = $('snake-best');
+
+    const CELLS = 20;                       // grille de 20 x 20
+    const CELL = canvas.width / CELLS;      // taille d'une case en pixels
+    const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+    const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
+
+    let snake = [];
+    let food = null;
+    let dir = 'right';
+    let dirQueue = [];
+    let score = 0;
+    let lastScore = 0;
+    let snakeTimer = null;
+
+    const renderBest = () => { bestEl.textContent = save.snakeBest; };
+
+    function placeFood() {
+        do {
+            food = { x: Math.floor(Math.random() * CELLS), y: Math.floor(Math.random() * CELLS) };
+        } while (snake.some(s => s.x === food.x && s.y === food.y));
+    }
+
+    function resetSnake() {
+        snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
+        dir = 'right';
+        dirQueue = [];
+        score = 0;
+        scoreEl.textContent = 0;
+        placeFood();
+    }
+
+    drawSnake = () => {
+        const colors = {
+            bg: cssVar('--deep'),
+            grid: cssVar('--panel'),
+            body: cssVar('--green'),
+            head: cssVar('--yellow'),
+            bug: cssVar('--bug')
+        };
+
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Petits points de grille
+        ctx.fillStyle = colors.grid;
+        for (let x = 0; x < CELLS; x++) {
+            for (let y = 0; y < CELLS; y++) {
+                ctx.fillRect(x * CELL + CELL / 2 - 1, y * CELL + CELL / 2 - 1, 2, 2);
+            }
+        }
+
+        // Le bug (nourriture) en pixel art : corps + pattes
+        if (food) {
+            const fx = food.x * CELL;
+            const fy = food.y * CELL;
+            ctx.fillStyle = colors.bug;
+            ctx.fillRect(fx + 5, fy + 4, 10, 12);
+            ctx.fillRect(fx + 2, fy + 6, 3, 2);
+            ctx.fillRect(fx + 15, fy + 6, 3, 2);
+            ctx.fillRect(fx + 2, fy + 12, 3, 2);
+            ctx.fillRect(fx + 15, fy + 12, 3, 2);
+            ctx.fillRect(fx + 7, fy + 1, 2, 3);
+            ctx.fillRect(fx + 11, fy + 1, 2, 3);
+        }
+
+        // Le serpent
+        snake.forEach((part, i) => {
+            ctx.fillStyle = i === 0 ? colors.head : colors.body;
+            ctx.fillRect(part.x * CELL + 1, part.y * CELL + 1, CELL - 2, CELL - 2);
+        });
+
+        // Les yeux : décalés vers l'avant, puis écartés de chaque côté
+        if (snake.length) {
+            const head = snake[0];
+            const [dx, dy] = DIRS[dir];
+            const cx = head.x * CELL + CELL / 2 + dx * 4;
+            const cy = head.y * CELL + CELL / 2 + dy * 4;
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(cx - dy * 4 - 1, cy + dx * 4 - 1, 3, 3);
+            ctx.fillRect(cx + dy * 4 - 1, cy - dx * 4 - 1, 3, 3);
+        }
     };
 
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Petits points de grille
-    ctx.fillStyle = colors.grid;
-    for (let x = 0; x < CELLS; x++) {
-        for (let y = 0; y < CELLS; y++) {
-            ctx.fillRect(x * CELL + CELL / 2 - 1, y * CELL + CELL / 2 - 1, 2, 2);
+    function setDirection(newDir) {
+        if (snakeState !== 'running') return;
+        const last = dirQueue.length ? dirQueue[dirQueue.length - 1] : dir;
+        if (newDir !== last && newDir !== OPPOSITE[last] && dirQueue.length < 3) {
+            dirQueue.push(newDir);
         }
     }
 
-    // Le bug (nourriture) en pixel art : corps + pattes
-    if (food) {
-        const fx = food.x * CELL;
-        const fy = food.y * CELL;
-        ctx.fillStyle = colors.bug;
-        ctx.fillRect(fx + 5, fy + 4, 10, 12);
-        ctx.fillRect(fx + 2, fy + 6, 3, 2);
-        ctx.fillRect(fx + 15, fy + 6, 3, 2);
-        ctx.fillRect(fx + 2, fy + 12, 3, 2);
-        ctx.fillRect(fx + 15, fy + 12, 3, 2);
-        ctx.fillRect(fx + 7, fy + 1, 2, 3);
-        ctx.fillRect(fx + 11, fy + 1, 2, 3);
+    function tick() {
+        if (dirQueue.length) dir = dirQueue.shift();
+        const [dx, dy] = DIRS[dir];
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+        const hitWall = head.x < 0 || head.y < 0 || head.x >= CELLS || head.y >= CELLS;
+        const hitSelf = snake.slice(0, -1).some(s => s.x === head.x && s.y === head.y);
+        if (hitWall || hitSelf) {
+            gameOver();
+            return;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+            score++;
+            scoreEl.textContent = score;
+            beep(880, 0.05);
+            beep(1320, 0.07, 'square', 0.05);
+            if (score === 10) unlock('snake');
+            placeFood();
+            // Ça accélère un peu tous les 5 bugs
+            if (score % 5 === 0) startLoop();
+        } else {
+            snake.pop();
+        }
+
+        drawSnake();
     }
 
-    // Le serpent
-    snake.forEach((part, i) => {
-        ctx.fillStyle = i === 0 ? colors.head : colors.body;
-        ctx.fillRect(part.x * CELL + 1, part.y * CELL + 1, CELL - 2, CELL - 2);
+    function startLoop() {
+        clearInterval(snakeTimer);
+        const speed = Math.max(60, 140 - Math.floor(score / 5) * 12);
+        snakeTimer = setInterval(tick, speed);
+    }
+
+    function showOverlay(message, button) {
+        snakeMsg.innerHTML = message;
+        snakeStartBtn.textContent = button;
+        snakeOverlay.hidden = false;
+    }
+
+    startSnake = () => {
+        if (snakeState === 'running') return;
+        shareBtn.hidden = true;
+        if (snakeState !== 'paused') resetSnake();
+        snakeState = 'running';
+        snakeOverlay.hidden = true;
+        drawSnake();
+        startLoop();
+        sfx.select();
+        canvas.focus({ preventScroll: true });
+    };
+
+    pauseSnake = () => {
+        if (snakeState !== 'running') return;
+        clearInterval(snakeTimer);
+        snakeState = 'paused';
+        showOverlay('PAUSE', '▶ Reprendre');
+    };
+
+    function gameOver() {
+        clearInterval(snakeTimer);
+        snakeState = 'over';
+        sfx.back();
+
+        let message = `GAME OVER<br>SCORE : ${score}`;
+        if (score > save.snakeBest) {
+            save.snakeBest = score;
+            persist();
+            renderBest();
+            message += '<br>★ NOUVEAU RECORD ★';
+        }
+        showOverlay(message, '↺ Rejouer');
+        lastScore = score;
+        shareBtn.hidden = score === 0;
+    }
+
+    snakeStartBtn.addEventListener('click', () => startSnake());
+
+    // Partager son score (partage natif sur mobile, sinon copie dans le presse-papiers)
+    shareBtn.addEventListener('click', async () => {
+        const url = window.SITE.url + PAGES.arcade;
+        const text = `🐍 J'ai mangé ${lastScore} bug${lastScore > 1 ? 's' : ''} au Snake sur le portfolio d'Eloïse Robert ! Tu peux battre mon score ?`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: 'Snake — Portfolio Eloïse Robert', text, url });
+            } catch (err) { /* partage annulé */ }
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(`${text} ${url}`);
+            showToast('📋', 'SCORE COPIÉ', 'Colle-le où tu veux pour défier tes amis !');
+        } catch (err) {
+            showToast('⚠️', 'OUPS', 'Impossible de copier le score.');
+        }
     });
 
-    // Les yeux
-    if (snake.length) {
-        const head = snake[0];
-        const [dx, dy] = DIRS[dir];
-        // Centre des yeux : décalé vers l'avant, puis écarté de chaque côté
-        const cx = head.x * CELL + CELL / 2 + dx * 4;
-        const cy = head.y * CELL + CELL / 2 + dy * 4;
-        ctx.fillStyle = colors.bg;
-        ctx.fillRect(cx - dy * 4 - 1, cy + dx * 4 - 1, 3, 3);
-        ctx.fillRect(cx + dy * 4 - 1, cy - dx * 4 - 1, 3, 3);
-    }
+    // Clavier : flèches / ZQSD / WASD, espace pour la pause
+    const KEY_DIRS = {
+        ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+        z: 'up', w: 'up', s: 'down', q: 'left', a: 'left', d: 'right'
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (document.querySelector('dialog[open]') || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+        if (key === ' ' && (snakeState === 'running' || snakeState === 'paused')) {
+            e.preventDefault();
+            snakeState === 'running' ? pauseSnake() : startSnake();
+            return;
+        }
+        if (KEY_DIRS[key] && snakeState === 'running') {
+            e.preventDefault(); // évite que la page défile
+            setDirection(KEY_DIRS[key]);
+        }
+    });
+
+    // Croix directionnelle (mobile)
+    document.querySelectorAll('.dpad-btn').forEach(btn => {
+        btn.addEventListener('click', () => setDirection(btn.dataset.dir));
+    });
+
+    // Glisser le doigt sur l'écran de jeu
+    let touchStart = null;
+    const arcadeScreen = document.querySelector('.arcade-screen');
+    arcadeScreen.addEventListener('touchstart', (e) => {
+        touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    arcadeScreen.addEventListener('touchend', (e) => {
+        if (!touchStart) return;
+        const dx = e.changedTouches[0].clientX - touchStart.x;
+        const dy = e.changedTouches[0].clientY - touchStart.y;
+        touchStart = null;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+        setDirection(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+    });
+
+    // Pause automatique si on change d'onglet
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseSnake();
+    });
+
+    canvas.tabIndex = 0;
+    resetSnake();
+    renderBest();
+    // Lancement direct depuis la palette de commandes (arcade.html?play=1)
+    if (params.get('play') === '1') setTimeout(startSnake, 300);
 }
 
-function setDirection(newDir) {
-    if (snakeState !== 'running') return;
-    const last = dirQueue.length ? dirQueue[dirQueue.length - 1] : dir;
-    if (newDir !== last && newDir !== OPPOSITE[last] && dirQueue.length < 3) {
-        dirQueue.push(newDir);
-    }
-}
+/* --- 17. OPTIONS D'ACCESSIBILITÉ (fenêtre créée à la première ouverture) --- */
+const a11yBtn = $('a11y-btn');
+let a11yDialog = null;
 
-function tick() {
-    if (dirQueue.length) dir = dirQueue.shift();
-    const [dx, dy] = DIRS[dir];
-    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+const A11Y_HTML = `
+    <form method="dialog" class="a11y-form" id="a11y-form">
+        <header class="a11y-head">
+            <h2 id="a11y-title" class="panel-title">♿ Options d'accessibilité</h2>
+            <button type="submit" class="hud-btn" aria-label="Fermer les options">✕</button>
+        </header>
 
-    const hitWall = head.x < 0 || head.y < 0 || head.x >= CELLS || head.y >= CELLS;
-    const hitSelf = snake.slice(0, -1).some(s => s.x === head.x && s.y === head.y);
-    if (hitWall || hitSelf) {
-        gameOver();
-        return;
-    }
+        <fieldset class="a11y-group">
+            <legend>Police du texte</legend>
+            <label class="a11y-choice"><input type="radio" name="font" value="pixel"> <span><strong>Pixel</strong> — style rétro d'origine</span></label>
+            <label class="a11y-choice"><input type="radio" name="font" value="lexend"> <span class="font-preview-lexend"><strong>Lexend</strong> — conçue pour faciliter la lecture</span></label>
+            <label class="a11y-choice"><input type="radio" name="font" value="dyslexic"> <span class="font-preview-dyslexic"><strong>OpenDyslexic</strong> — pensée pour la dyslexie</span></label>
+        </fieldset>
 
-    snake.unshift(head);
+        <fieldset class="a11y-group">
+            <legend>Couleurs</legend>
+            <label class="a11y-choice"><input type="radio" name="theme" value="neon"> <span>Néon</span></label>
+            <label class="a11y-choice"><input type="radio" name="theme" value="gameboy"> <span>Game Boy</span></label>
+            <label class="a11y-choice"><input type="radio" name="theme" value="console"> <span>Console (clair)</span></label>
+            <label class="a11y-choice"><input type="radio" name="theme" value="lave"> <span>Lave</span></label>
+            <label class="a11y-choice"><input type="radio" name="theme" value="access"> <span><strong>Daltonisme</strong> — couleurs distinguables par tous, contraste renforcé</span></label>
+        </fieldset>
 
-    if (head.x === food.x && head.y === food.y) {
-        score++;
-        scoreEl.textContent = score;
-        beep(880, 0.05);
-        beep(1320, 0.07, 'square', 0.05);
-        if (score === 10) unlock('snake');
-        placeFood();
-        // Ça accélère un peu tous les 5 bugs
-        if (score % 5 === 0) startLoop();
-    } else {
-        snake.pop();
-    }
+        <fieldset class="a11y-group">
+            <legend>Lecture & confort</legend>
+            <label class="a11y-choice"><input type="checkbox" name="spacing"> <span>Texte plus espacé (lignes, lettres et mots)</span></label>
+            <label class="a11y-choice"><input type="checkbox" name="crt"> <span>Effet écran cathodique (lignes horizontales)</span></label>
+            <label class="a11y-choice"><input type="checkbox" name="motion"> <span>Animations (clignotements, texte qui s'écrit…)</span></label>
+        </fieldset>
 
-    drawSnake();
-}
-
-function startLoop() {
-    clearInterval(snakeTimer);
-    const speed = Math.max(60, 140 - Math.floor(score / 5) * 12);
-    snakeTimer = setInterval(tick, speed);
-}
-
-function showOverlay(message, button) {
-    snakeMsg.innerHTML = message;
-    snakeStartBtn.textContent = button;
-    snakeOverlay.hidden = false;
-}
-
-function startSnake() {
-    if (snakeState === 'running') return;
-    shareBtn.hidden = true;
-    if (snakeState !== 'paused') resetSnake();
-    snakeState = 'running';
-    snakeOverlay.hidden = true;
-    drawSnake();
-    startLoop();
-    sfx.select();
-    canvas.focus({ preventScroll: true });
-}
-
-function pauseSnake() {
-    if (snakeState !== 'running') return;
-    clearInterval(snakeTimer);
-    snakeState = 'paused';
-    showOverlay('PAUSE', '▶ Reprendre');
-}
-
-function gameOver() {
-    clearInterval(snakeTimer);
-    snakeState = 'over';
-    sfx.back();
-
-    let message = `GAME OVER<br>SCORE : ${score}`;
-    if (score > save.snakeBest) {
-        save.snakeBest = score;
-        persist();
-        renderBest();
-        message += '<br>★ NOUVEAU RECORD ★';
-    }
-    showOverlay(message, '↺ Rejouer');
-    lastScore = score;
-    shareBtn.hidden = score === 0;
-}
-
-snakeStartBtn.addEventListener('click', startSnake);
-
-// Partager son score (partage natif sur mobile, sinon copie dans le presse-papiers)
-const shareBtn = document.getElementById('snake-share');
-let lastScore = 0;
-
-shareBtn.addEventListener('click', async () => {
-    const url = 'https://portfolio-eloiserobert.vercel.app/#arcade';
-    const text = `🐍 J'ai mangé ${lastScore} bug${lastScore > 1 ? 's' : ''} au Snake sur le portfolio d'Eloïse Robert ! Tu peux battre mon score ?`;
-
-    if (navigator.share) {
-        try {
-            await navigator.share({ title: 'Snake — Portfolio Eloïse Robert', text, url });
-        } catch (err) { /* partage annulé */ }
-        return;
-    }
-    try {
-        await navigator.clipboard.writeText(`${text} ${url}`);
-        showToast('📋', 'SCORE COPIÉ', 'Colle-le où tu veux pour défier tes amis !');
-    } catch (err) {
-        showToast('⚠️', 'OUPS', 'Impossible de copier le score.');
-    }
-});
-
-// Clavier : flèches / ZQSD / WASD, espace pour la pause
-const KEY_DIRS = {
-    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
-    z: 'up', w: 'up', s: 'down', q: 'left', a: 'left', d: 'right'
-};
-
-document.addEventListener('keydown', (e) => {
-    const onArcade = !document.querySelector('[data-screen="arcade"]').hidden;
-    if (!onArcade || a11yDialog.open || palette.open || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-
-    if (key === ' ' && (snakeState === 'running' || snakeState === 'paused')) {
-        e.preventDefault();
-        snakeState === 'running' ? pauseSnake() : startSnake();
-        return;
-    }
-
-    if (KEY_DIRS[key] && snakeState === 'running') {
-        e.preventDefault(); // évite que la page défile
-        setDirection(KEY_DIRS[key]);
-    }
-});
-
-// Croix directionnelle (mobile)
-document.querySelectorAll('.dpad-btn').forEach(btn => {
-    btn.addEventListener('click', () => setDirection(btn.dataset.dir));
-});
-
-// Glisser le doigt sur l'écran de jeu
-let touchStart = null;
-const arcadeScreen = document.querySelector('.arcade-screen');
-
-arcadeScreen.addEventListener('touchstart', (e) => {
-    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: true });
-
-arcadeScreen.addEventListener('touchend', (e) => {
-    if (!touchStart) return;
-    const dx = e.changedTouches[0].clientX - touchStart.x;
-    const dy = e.changedTouches[0].clientY - touchStart.y;
-    touchStart = null;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
-    setDirection(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-});
-
-// Pause automatique si on change d'onglet
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) pauseSnake();
-});
-
-canvas.tabIndex = 0;
-resetSnake();
-
-/* --- 18. OPTIONS D'ACCESSIBILITÉ --- */
-const a11yDialog = document.getElementById('a11y-dialog');
-const a11yForm = document.getElementById('a11y-form');
-const a11yBtn = document.getElementById('a11y-btn');
+        <div class="a11y-actions">
+            <button type="button" class="pixel-btn alt" id="a11y-reset">↺ Réglages par défaut</button>
+            <button type="submit" class="pixel-btn">✔ Valider</button>
+        </div>
+    </form>`;
 
 // Applique les réglages sur <html> (le CSS s'occupe du reste)
 function applyA11y() {
     const root = document.documentElement;
-    const font = save.font === 'pixel' && save.classic ? 'lexend' : save.font;
+    const font = save.font === 'pixel' && save.classic ? 'lexend' : save.font; // police lisible en version classique
     if (font === 'pixel') delete root.dataset.font; else root.dataset.font = font;
     if (save.spacing) root.dataset.spacing = 'on'; else delete root.dataset.spacing;
     if (save.crt) delete root.dataset.crt; else root.dataset.crt = 'off';
     if (save.motion) delete root.dataset.motion; else root.dataset.motion = 'off';
 
     // Sans animation, le message d'accueil s'affiche directement
-    if (!save.motion) {
-        clearInterval(typeTimer);
-        typeEl.textContent = typeEl.dataset.text;
-        typeEl.classList.add('done');
-    }
+    if (!save.motion && typeEl) showFullText();
     syncA11yForm();
 }
 
 // Coche dans la fenêtre les options actuellement actives
 function syncA11yForm() {
-    a11yForm.elements.font.value = save.font;
-    a11yForm.elements.theme.value = save.theme;
-    a11yForm.elements.spacing.checked = save.spacing;
-    a11yForm.elements.crt.checked = save.crt;
-    a11yForm.elements.motion.checked = save.motion;
+    const form = a11yDialog?.querySelector('form');
+    if (!form) return;
+    form.elements.font.value = save.font;
+    form.elements.theme.value = save.theme;
+    form.elements.spacing.checked = save.spacing;
+    form.elements.crt.checked = save.crt;
+    form.elements.motion.checked = save.motion;
 }
 
-// Chaque changement s'applique immédiatement (aperçu en direct)
-a11yForm.addEventListener('change', (e) => {
-    const { name, value, checked, type } = e.target;
-    if (name === 'theme') {
-        save.theme = value;
-        applyTheme(value);
-        unlock('theme');
-    } else {
-        save[name] = type === 'checkbox' ? checked : value;
-        applyA11y();
-    }
-    persist();
-});
+function createA11yDialog() {
+    a11yDialog = document.createElement('dialog');
+    a11yDialog.className = 'a11y-dialog panel';
+    a11yDialog.id = 'a11y-dialog';
+    a11yDialog.setAttribute('aria-labelledby', 'a11y-title');
+    a11yDialog.innerHTML = A11Y_HTML;
+    document.body.appendChild(a11yDialog);
 
-document.getElementById('a11y-reset').addEventListener('click', () => {
-    Object.assign(save, {
-        font: 'pixel', spacing: false, crt: true, theme: 'neon',
-        motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Chaque changement s'applique immédiatement (aperçu en direct)
+    a11yDialog.querySelector('form').addEventListener('change', (e) => {
+        const { name, value, checked, type } = e.target;
+        if (name === 'theme') {
+            save.theme = value;
+            applyTheme(value);
+            unlock('theme');
+        } else {
+            save[name] = type === 'checkbox' ? checked : value;
+            applyA11y();
+        }
+        persist();
     });
-    persist();
-    applyTheme(save.theme);
-    applyA11y();
-});
+
+    $('a11y-reset').addEventListener('click', () => {
+        Object.assign(save, {
+            font: 'pixel', spacing: false, crt: true, theme: 'neon',
+            motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        });
+        persist();
+        applyTheme(save.theme);
+        applyA11y();
+    });
+
+    a11yDialog.addEventListener('close', () => a11yBtn.focus()); // retour du focus
+    a11yDialog.addEventListener('click', (e) => { // clic en dehors = fermeture
+        if (e.target === a11yDialog) a11yDialog.close();
+    });
+}
 
 a11yBtn.addEventListener('click', () => {
+    if (!a11yDialog) createA11yDialog();
     pauseSnake();
     syncA11yForm();
     a11yDialog.showModal();
     sfx.select();
 });
 
-// Retour du focus sur le bouton à la fermeture
-a11yDialog.addEventListener('close', () => a11yBtn.focus());
-
-// Clic en dehors de la fenêtre = fermeture
-a11yDialog.addEventListener('click', (e) => {
-    if (e.target === a11yDialog) a11yDialog.close();
-});
-
-/* --- 19. VERSION CLASSIQUE ("recruteur pressé") --- */
-const footerClassic = document.getElementById('footer-classic');
-
-function setClassic(on) {
-    save.classic = on;
-    persist();
-    if (on) document.documentElement.dataset.mode = 'classic';
-    else delete document.documentElement.dataset.mode;
-    applyA11y(); // police lisible automatique en version classique
-
-    setClassicLabels();
-
-    if (on) {
-        pauseSnake();
-        window.scrollTo(0, 0);
-    } else {
-        showScreen(location.hash.slice(1) || 'map');
-    }
-}
-
-document.getElementById('classic-btn').addEventListener('click', (e) => {
-    e.stopPropagation(); // ne pas déclencher "PRESS START"
-    setClassic(true);
-    startGame();
-});
-
-document.getElementById('game-mode-btn').addEventListener('click', () => setClassic(false));
+/* --- 18. VERSION CLASSIQUE ("recruteur pressé") --- */
+const footerClassic = $('footer-classic');
 
 function setClassicLabels() {
     footerClassic.textContent = save.classic ? 'Version jeu' : 'Version classique';
     footerClassic.href = save.classic ? '?mode=jeu' : '?mode=classique';
 }
 
+function setClassic(on) {
+    save.classic = on;
+    persist();
+    if (on) document.documentElement.dataset.mode = 'classic';
+    else delete document.documentElement.dataset.mode;
+    applyA11y();
+    setClassicLabels();
+    if (on) {
+        pauseSnake();
+        if (typeEl) showFullText();
+    }
+}
+
+$('game-mode-btn').addEventListener('click', () => setClassic(false));
 footerClassic.addEventListener('click', (e) => {
     e.preventDefault();
     setClassic(!save.classic);
 });
 
-/* --- 20. PROJETS GITHUB MIS À JOUR AUTOMATIQUEMENT (API GitHub) --- */
+/* --- 19. GITHUB : PROJETS MIS À JOUR AUTOMATIQUEMENT (API GitHub) --- */
 const GH_USER = 'elo41flo';
 const GH_CACHE = 'elo-gh-cache';
 const LANG_COLORS = {
@@ -990,13 +999,14 @@ async function fetchGithub() {
         if (cached && Date.now() - cached.time < 30 * 60 * 1000) return cached.data;
     } catch (e) { /* pas de cache */ }
 
-    const [userRes, reposRes] = await Promise.all([
-        fetch(`https://api.github.com/users/${GH_USER}`),
-        fetch(`https://api.github.com/users/${GH_USER}/repos?sort=pushed&per_page=100`)
-    ]);
-    if (!userRes.ok || !reposRes.ok) throw new Error('GitHub indisponible');
+    // Une seule requête, limitée aux 12 dépôts les plus récents
+    const res = await fetch(`https://api.github.com/users/${GH_USER}/repos?sort=pushed&per_page=12`);
+    if (!res.ok) throw new Error('GitHub indisponible');
 
-    const data = { user: await userRes.json(), repos: await reposRes.json() };
+    // On ne garde que les champs utiles (cache plus léger)
+    const repos = (await res.json()).map(({ name, html_url, description, language, stargazers_count, pushed_at, fork }) =>
+        ({ name, html_url, description, language, stargazers_count, pushed_at, fork }));
+    const data = { repos };
     try { sessionStorage.setItem(GH_CACHE, JSON.stringify({ time: Date.now(), data })); } catch (e) { /* ignore */ }
     return data;
 }
@@ -1040,31 +1050,24 @@ function repoCard(repo) {
 }
 
 async function loadGithub() {
-    const status = document.getElementById('gh-status');
-    const list = document.getElementById('gh-repos');
-    const stats = document.getElementById('gh-stats');
-
+    const status = $('gh-status');
     try {
-        const { user, repos } = await fetchGithub();
+        const { repos } = await fetchGithub();
         const recent = repos
             .filter(r => !r.fork && r.name !== GH_USER)
             .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
             .slice(0, 6);
         if (!recent.length) throw new Error('Aucun dépôt');
 
-        list.replaceChildren(...recent.map(repoCard));
+        $('gh-repos').replaceChildren(...recent.map(repoCard));
         status.textContent = `Mis à jour automatiquement depuis GitHub · mes ${recent.length} projets les plus récents.`;
-
-        const since = new Date(user.created_at).getFullYear();
-        stats.textContent = `📦 ${user.public_repos} dépôts publics · 🗓️ sur GitHub depuis ${since}`;
-        stats.hidden = false;
     } catch (err) {
         // En cas d'échec, on garde la liste écrite dans le HTML
         status.textContent = 'GitHub ne répond pas pour le moment : voici mes projets épinglés.';
     }
 }
 
-/* --- 21. BADGE ÉCO-CONÇU (mesure en direct, façon EcoIndex) --- */
+/* --- 20. BADGE ÉCO (mesure en direct, façon EcoIndex) --- */
 // Méthode EcoIndex (ecoindex.fr) : nombre d'éléments, de requêtes et poids de la page
 const ECO_Q = {
     dom: [0, 47, 75, 159, 233, 298, 358, 417, 476, 537, 603, 674, 753, 843, 949, 1076, 1237, 1459, 1801, 2479, 594601],
@@ -1096,7 +1099,7 @@ function measureEco() {
     const score = Math.round(100 - 5 * (3 * ecoQuantile(ECO_Q.dom, dom) + 2 * ecoQuantile(ECO_Q.req, requests) + ecoQuantile(ECO_Q.size, kb)) / 6);
     const { grade, color } = ECO_GRADES.find(g => score > g.min);
 
-    const badge = document.getElementById('eco-badge');
+    const badge = $('eco-badge');
     const gradeEl = document.createElement('span');
     gradeEl.className = 'eco-grade';
     gradeEl.style.background = color;
@@ -1110,40 +1113,54 @@ function measureEco() {
     badge.hidden = false;
 }
 
-/* --- 22. PALETTE DE COMMANDES (Ctrl + K) --- */
-const palette = document.getElementById('palette');
-const paletteInput = document.getElementById('palette-input');
-const paletteList = document.getElementById('palette-list');
-const paletteBtn = document.getElementById('palette-btn');
+/* --- 21. PALETTE DE COMMANDES (Ctrl + K) — créée à la première ouverture --- */
+const paletteBtn = $('palette-btn');
+let palette = null;
+let paletteInput = null;
+let paletteList = null;
 let paletteItems = [];
 let paletteIndex = 0;
 
-const go = hash => () => { location.hash = hash; };
-const normalize = str => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const go = key => () => { location.href = PAGES[key]; };
+const normalize = str => str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+function downloadCv() {
+    const link = document.createElement('a');
+    link.href = 'cv-eloise-robert.pdf';
+    link.download = '';
+    link.click();
+}
 
 function paletteCommands() {
-    const levels = [...levelLinks].map(link => ({
-        icon: link.querySelector('.level-icon').textContent,
-        label: link.querySelector('.level-name').textContent,
-        hint: link.querySelector('.level-num').textContent,
-        keywords: link.querySelector('.level-sub').textContent,
-        run: go(link.getAttribute('href').slice(1))
-    }));
+    const level = (key, icon, label, hint, keywords) => ({ icon, label, hint, keywords, run: go(key) });
     return [
-        { icon: '🗺️', label: 'Carte du monde', hint: 'accueil', keywords: 'home menu', run: go('map') },
-        ...levels,
-        { icon: '🏆', label: 'Succès débloqués', hint: 'trophées', keywords: 'achievements', run: go('trophees') },
-        { icon: '🐍', label: 'Jouer au Snake', hint: 'action', keywords: 'jeu arcade', run: () => { location.hash = 'arcade'; startSnake(); } },
-        { icon: '📨', label: 'Proposer un stage', hint: 'contact', keywords: 'recrutement alternance', run: () => { objetSelect.value = 'stage'; location.hash = 'contact'; } },
-        { icon: '💰', label: 'Demander un devis', hint: 'contact', keywords: 'prix tarif client', run: () => { objetSelect.value = 'devis'; location.hash = 'contact'; } },
-        { icon: '📜', label: 'Télécharger mon CV', hint: 'PDF', keywords: 'curriculum resume', run: () => document.querySelector('.cv-btn').click() },
+        level('map', '🗺️', 'Carte du monde', 'accueil', 'home menu'),
+        level('profil', '🧙‍♀️', 'Mon profil', '1-1', 'fiche perso cv parcours'),
+        level('figma', '🎨', 'Figma', '1-2', 'maquettes design'),
+        level('vscode', '⌨️', 'Projets VS Code', '1-3', 'code developpement'),
+        level('wordpress', '🏰', 'WordPress', '2-1', 'cms'),
+        level('seo', '🔍', 'SEO', '2-2', 'audit referencement'),
+        level('github', '🐙', 'GitHub', '2-3', 'depots repos'),
+        level('certifications', '🎖️', 'Certifications', '3-1', 'badges diplomes'),
+        level('veille', '📡', 'Veille techno', '3-2', 'taverne actualites'),
+        level('contact', '💾', 'Contact', '3-3', 'message email'),
+        level('boutique', '🛒', 'Services', '4-1', 'boutique tarifs faq'),
+        level('arcade', '👾', 'Arcade', '4-2', 'mini-jeu'),
+        level('quetes', '🗝️', 'Prochaines quêtes', '4-3', 'projets futurs'),
+        level('e5', '🎓', 'BTS SIO · E5', 'E5', 'epreuve slam synthese'),
+        level('autres', '🍄', 'Autres', 'BONUS', 'loisirs'),
+        level('trophees', '🏆', 'Succès débloqués', 'trophées', 'achievements'),
+        { icon: '🐍', label: 'Jouer au Snake', hint: 'action', keywords: 'jeu arcade', run: () => startSnake() },
+        { icon: '📨', label: 'Proposer un stage', hint: 'contact', keywords: 'recrutement alternance', run: () => { location.href = PAGES.contact + '?objet=stage'; } },
+        { icon: '💰', label: 'Demander un devis', hint: 'contact', keywords: 'prix tarif client', run: () => { location.href = PAGES.contact + '?objet=devis'; } },
+        { icon: '📜', label: 'Télécharger mon CV', hint: 'PDF', keywords: 'curriculum resume', run: downloadCv },
         { icon: '🎨', label: 'Changer de thème', hint: 'action', keywords: 'couleur theme', run: () => themeBtn.click() },
         { icon: save.sound ? '🔇' : '🔊', label: save.sound ? 'Couper le son' : 'Activer le son', hint: 'action', keywords: 'audio musique', run: () => soundBtn.click() },
         { icon: '♿', label: "Options d'accessibilité", hint: 'action', keywords: 'dyslexie daltonisme police', run: () => a11yBtn.click() },
         { icon: save.classic ? '🎮' : '📄', label: save.classic ? 'Revenir à la version jeu' : 'Version classique (recruteurs)', hint: 'mode', keywords: 'sobre simple recruteur', run: () => setClassic(!save.classic) },
-        { icon: '🗂️', label: 'Plan du site', hint: 'page', keywords: 'sitemap', run: go('plan') },
-        { icon: '📜', label: 'Mentions légales', hint: 'page', keywords: 'siret legal', run: go('mentions') },
-        { icon: '🔒', label: 'Confidentialité', hint: 'page', keywords: 'rgpd donnees', run: go('confidentialite') }
+        level('plan', '🗂️', 'Plan du site', 'page', 'sitemap'),
+        level('mentions', '📜', 'Mentions légales', 'page', 'siret legal'),
+        level('confidentialite', '🔒', 'Confidentialité', 'page', 'rgpd donnees')
     ];
 }
 
@@ -1189,12 +1206,46 @@ function renderPalette() {
         return li;
     }));
     paletteInput.setAttribute('aria-activedescendant', `palette-item-${paletteIndex}`);
-    document.getElementById(`palette-item-${paletteIndex}`).scrollIntoView({ block: 'nearest' });
+    $(`palette-item-${paletteIndex}`).scrollIntoView({ block: 'nearest' });
+}
+
+function createPalette() {
+    palette = document.createElement('dialog');
+    palette.className = 'palette panel';
+    palette.id = 'palette';
+    palette.setAttribute('aria-label', 'Palette de commandes');
+    palette.innerHTML = `
+        <div class="palette-input-wrap">
+            <span class="palette-prompt" aria-hidden="true">&gt;</span>
+            <input type="text" id="palette-input" class="palette-input" placeholder="Tape une commande : profil, snake, thème…"
+                   role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+        </div>
+        <ul class="palette-list" id="palette-list" role="listbox" aria-label="Commandes"></ul>
+        <p class="palette-help"><kbd>↑</kbd><kbd>↓</kbd> choisir · <kbd>Entrée</kbd> valider · <kbd>Échap</kbd> fermer</p>`;
+    document.body.appendChild(palette);
+    paletteInput = $('palette-input');
+    paletteList = $('palette-list');
+
+    paletteInput.addEventListener('input', () => { paletteIndex = 0; renderPalette(); });
+    paletteInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const step = e.key === 'ArrowDown' ? 1 : -1;
+            paletteIndex = (paletteIndex + step + paletteItems.length) % Math.max(paletteItems.length, 1);
+            renderPalette();
+            sfx.move();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            runPalette(paletteIndex);
+        }
+    });
+    palette.addEventListener('click', (e) => { if (e.target === palette) palette.close(); });
 }
 
 function openPalette() {
+    if (!palette) createPalette();
     if (palette.open) return;
-    if (a11yDialog.open) a11yDialog.close();
+    if (a11yDialog?.open) a11yDialog.close();
     pauseSnake();
     paletteInput.value = '';
     paletteIndex = 0;
@@ -1213,51 +1264,59 @@ function runPalette(i) {
     cmd.run();
 }
 
-paletteInput.addEventListener('input', () => { paletteIndex = 0; renderPalette(); });
-
-paletteInput.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const step = e.key === 'ArrowDown' ? 1 : -1;
-        paletteIndex = (paletteIndex + step + paletteItems.length) % Math.max(paletteItems.length, 1);
-        renderPalette();
-        sfx.move();
-    } else if (e.key === 'Enter') {
-        e.preventDefault();
-        runPalette(paletteIndex);
-    }
-});
-
 // Ctrl + K (ou Cmd + K sur Mac) depuis n'importe où
 document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        palette.open ? palette.close() : openPalette();
+        palette?.open ? palette.close() : openPalette();
     }
 });
-
 paletteBtn.addEventListener('click', openPalette);
-palette.addEventListener('click', (e) => { if (e.target === palette) palette.close(); });
+
+/* --- 22. BTS SIO E5 : ouvrir la fiche ciblée (#fiche-…) --- */
+function openFicheFromHash() {
+    const fiche = location.hash.startsWith('#fiche-') && document.querySelector(location.hash);
+    if (fiche) {
+        fiche.open = true;
+        fiche.scrollIntoView({ block: 'start' });
+    }
+}
+if (PAGE === 'e5') {
+    window.addEventListener('hashchange', openFicheFromHash);
+    openFicheFromHash();
+}
 
 /* --- INITIALISATION --- */
+if (save.classic) document.documentElement.dataset.mode = 'classic';
 applyTheme(save.theme);
 applyA11y();
-renderBest();
 renderXp();
 renderAchievements();
-renderClearedLevels();
-
-if (save.classic) document.documentElement.dataset.mode = 'classic';
 setClassicLabels();
-loadGithub();
+visitPage();
+
+// GitHub n'est interrogé que lorsque la section devient visible à l'écran
+const ghRepos = $('gh-repos');
+if (ghRepos) {
+    const ghObserver = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+            ghObserver.disconnect();
+            loadGithub();
+        }
+    });
+    ghObserver.observe(ghRepos);
+}
+
 // Le badge éco est calculé une fois la page entièrement chargée
 window.addEventListener('load', () => setTimeout(measureEco, 1500));
 
-// On saute l'écran titre si la partie a déjà été lancée dans cet onglet,
-// si on arrive directement sur une section (lien partagé) ou en version classique
-let alreadyStarted = false;
-try { alreadyStarted = sessionStorage.getItem('elo-started') === '1'; } catch (e) { /* ignore */ }
-if (save.classic || alreadyStarted || (location.hash && location.hash !== '#map')) {
-    titleScreen.hidden = true;
-    startGame();
+// Accueil : on saute l'écran titre si la partie a déjà été lancée dans cet onglet ou en version classique
+if (PAGE === 'map') {
+    renderClearedLevels();
+    let alreadyStarted = false;
+    try { alreadyStarted = sessionStorage.getItem('elo-started') === '1'; } catch (e) { /* ignore */ }
+    if (save.classic || alreadyStarted) {
+        titleScreen.hidden = true;
+        startGame();
+    }
 }
