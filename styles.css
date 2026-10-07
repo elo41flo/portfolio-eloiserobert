@@ -1678,6 +1678,50 @@ body.rainbow .panel {
     padding: 0 8px;
 }
 
+/* Prochaines quêtes (projets futurs) */
+.level-locked .level-icon {
+    filter: drop-shadow(3px 3px 0 #000) grayscale(0.4);
+}
+
+.future-quest {
+    border-style: dashed;
+    padding-top: 30px;
+}
+
+.future-icon {
+    position: absolute;
+    top: -20px;
+    left: 16px;
+    font-size: 2.2rem;
+    filter: drop-shadow(3px 3px 0 #000);
+}
+
+.future-lock {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 1.2rem;
+}
+
+.future-quest .quest-head {
+    padding-right: 26px; /* laisse la place au cadenas */
+}
+
+.future-quest > p {
+    color: var(--muted);
+}
+
+.future-goal {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px dashed var(--border);
+}
+
+.future-goal a {
+    color: var(--cyan);
+    text-decoration: underline;
+}
+
 /* --- 16. BOUTIQUE --- */
 .card-grid.shop-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
