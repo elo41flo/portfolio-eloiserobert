@@ -1,0 +1,53 @@
+# Contrôle qualité automatique du portfolio
+# - à chaque push sur main et à chaque pull request
+# - chaque lundi matin : vérifie que les liens externes fonctionnent toujours
+name: Contrôle qualité
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  code:
+    name: HTML, JavaScript et JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validation du HTML (html-validate)
+        run: npx --yes html-validate@11 index.html 404.html
+
+      - name: Syntaxe JavaScript
+        run: for f in *.js; do echo "→ $f"; node --check "$f"; done
+
+      - name: JSON valides (vercel.json et données structurées)
+        run: node .github/scripts/check-json.mjs
+
+  liens:
+    name: Liens cassés
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Les exclusions (LinkedIn, Instagram…) sont listées dans .lycheeignore
+      - name: Vérification des liens (lychee)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --root-dir ${{ github.workspace }}
+            --accept '200..=299,403,429'
+            --max-retries 3
+            index.html 404.html
+          fail: true

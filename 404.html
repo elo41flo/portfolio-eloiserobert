@@ -8,17 +8,7 @@
     <meta name="theme-color" content="#0d0b1e">
 
     <!-- Mêmes préférences (thème, accessibilité) que sur le portfolio -->
-    <script>
-        try {
-            var prefs = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}');
-            var root = document.documentElement;
-            if (prefs.theme && prefs.theme !== 'neon') root.dataset.theme = prefs.theme;
-            if (prefs.font && prefs.font !== 'pixel') root.dataset.font = prefs.font;
-            if (prefs.spacing) root.dataset.spacing = 'on';
-            if (prefs.crt === false) root.dataset.crt = 'off';
-            if (prefs.motion === false) root.dataset.motion = 'off';
-        } catch (e) {}
-    </script>
+    <script src="/prefs.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,27 +43,6 @@
         </div>
     </main>
 
-    <script>
-        // Compte à rebours façon borne d'arcade : à 0, retour automatique à l'accueil
-        var count = 9;
-        var countdownEl = document.getElementById('countdown');
-        var timer = setInterval(function () {
-            count--;
-            countdownEl.textContent = count;
-            if (count <= 0) {
-                clearInterval(timer);
-                window.location.href = '/';
-            }
-        }, 1000);
-
-        // Si on interagit avec la page, on arrête le compte à rebours
-        ['keydown', 'pointerdown'].forEach(function (evt) {
-            document.addEventListener(evt, function (e) {
-                if (e.key === 'Enter') return; // Entrée sur un bouton = navigation normale
-                clearInterval(timer);
-                countdownEl.textContent = '∞';
-            }, { once: true });
-        });
-    </script>
+    <script src="/404.js"></script>
 </body>
 </html>

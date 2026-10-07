@@ -16,14 +16,23 @@ function loadSave() {
 const save = Object.assign({
     xp: 0, visited: [], achievements: [], sound: false, theme: 'neon', snakeBest: 0,
     // Accessibilité
-    font: 'pixel', spacing: false, crt: true, motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    font: 'pixel', spacing: false, crt: true, motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    classic: false // mode "recruteur pressé"
 }, loadSave());
+
+// Lien partagé avec ?mode=classique ou ?mode=jeu : on mémorise le choix puis on nettoie l'adresse
+const urlMode = new URLSearchParams(location.search).get('mode');
+if (urlMode === 'classique' || urlMode === 'jeu') {
+    save.classic = urlMode === 'classique';
+    history.replaceState(null, '', location.pathname + location.hash);
+}
 
 function persist() {
     try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(save));
     } catch (e) { /* on continue sans sauvegarde */ }
 }
+persist();
 
 /* --- 1. AVATAR PIXEL ART (généré en SVG) --- */
 const AVATAR_MAP = [
@@ -70,8 +79,14 @@ function buildAvatar() {
     return `<svg viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
 }
 
-const avatarSvg = buildAvatar();
-document.querySelectorAll('[data-avatar]').forEach(el => { el.innerHTML = avatarSvg; });
+// Une seule image réutilisée partout : beaucoup moins d'éléments dans la page (meilleur EcoIndex)
+const avatarSrc = 'data:image/svg+xml,' + encodeURIComponent(buildAvatar());
+document.querySelectorAll('[data-avatar]').forEach(el => {
+    const img = document.createElement('img');
+    img.src = avatarSrc;
+    img.alt = '';
+    el.replaceChildren(img);
+});
 
 /* --- 2. SONS 8-BIT (Web Audio) --- */
 let audioCtx = null;
@@ -141,6 +156,7 @@ const ACHIEVEMENTS = [
     { id: 'theme', icon: '🎨', name: 'Styliste', desc: 'Changer le thème de couleurs.' },
     { id: 'snake', icon: '🐍', name: 'Chasse aux bugs', desc: 'Atteindre 10 points au Snake.' },
     { id: 'night', icon: '🦉', name: 'Oiseau de nuit', desc: 'Jouer entre 22 h et 6 h.' },
+    { id: 'palette', icon: '⌨️', name: 'Ligne de commande', desc: 'Utiliser la palette de commandes (Ctrl + K).' },
     { id: 'konami', icon: '🌈', name: 'Code secret', desc: '↑ ↑ ↓ ↓ ← → ← → B A' }
 ];
 
@@ -171,10 +187,21 @@ function unlock(id) {
     addXp(40);
     sfx.coin();
 
+    showToast(ach.icon, 'SUCCÈS DÉBLOQUÉ', ach.name);
+}
+
+function showToast(icon, label, text) {
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<span class="ach-icon" aria-hidden="true">${ach.icon}</span>
-        <div><small>SUCCÈS DÉBLOQUÉ</small>${ach.name}</div>`;
+    const iconEl = document.createElement('span');
+    iconEl.className = 'ach-icon';
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.textContent = icon;
+    const body = document.createElement('div');
+    const small = document.createElement('small');
+    small.textContent = label;
+    body.append(small, text);
+    toast.append(iconEl, body);
     toastZone.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
 }
@@ -190,6 +217,7 @@ function renderXp() {
     const current = save.xp % XP_PER_LEVEL;
     levelEl.textContent = level;
     xpFill.style.setProperty('--v', `${current}%`);
+    document.getElementById('xp-bar').setAttribute('aria-valuenow', current);
     xpText.textContent = `${current}/${XP_PER_LEVEL}`;
 }
 
@@ -245,6 +273,15 @@ function showScreen(name, { focus = true } = {}) {
     // Lien vers une fiche du module E5 (#fiche-…) : on affiche l'écran E5 puis on ouvre la fiche
     const fiche = name.startsWith('fiche-') ? document.getElementById(name) : null;
     if (fiche) name = 'e5';
+
+    // Version classique : tout est déjà affiché, on se contente de défiler
+    if (save.classic) {
+        const section = fiche || document.querySelector(`.screen[data-screen="${name}"]:not([data-classic="hide"])`);
+        if (fiche) fiche.open = true;
+        if (section) section.scrollIntoView({ block: 'start' });
+        else window.scrollTo(0, 0);
+        return;
+    }
 
     const target = [...screens].find(s => s.dataset.screen === name) ? name : 'map';
 
@@ -321,7 +358,8 @@ titleScreen.addEventListener('click', startGame);
 /* --- 8. CLAVIER : flèches sur la carte, Échap pour revenir --- */
 document.addEventListener('keydown', (e) => {
     if (!started) {
-        if (e.key === 'Enter' || e.key === ' ') {
+        // Entrée/Espace lancent le jeu… sauf sur le bouton "Version classique"
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement.id !== 'classic-btn') {
             e.preventDefault();
             startGame();
         }
@@ -330,8 +368,8 @@ document.addEventListener('keydown', (e) => {
 
     const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
 
-    // Échap dans la fenêtre d'accessibilité la ferme seulement
-    if (a11yDialog.open) return;
+    // Échap dans une fenêtre (accessibilité, palette) la ferme seulement
+    if (a11yDialog.open || palette.open) return;
 
     if (e.key === 'Escape' && !typing && location.hash && location.hash !== '#map') {
         sfx.back();
@@ -460,8 +498,18 @@ document.querySelectorAll('.embed').forEach(box => {
 const form = document.getElementById('contact-form');
 const formStatus = document.getElementById('form-status');
 
+const objetSelect = document.getElementById('objet');
+const subjectInput = document.getElementById('subject');
+
+// Les boutons "Me contacter", "Choisir cette offre"… pré-remplissent l'objet
+document.querySelectorAll('[data-objet]').forEach(link => {
+    link.addEventListener('click', () => { objetSelect.value = link.dataset.objet; });
+});
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Objet de l'email reçu (champ spécial reconnu par Formspree)
+    subjectInput.value = `Portfolio — ${objetSelect.selectedOptions[0].textContent}`;
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     formStatus.className = 'form-status';
@@ -706,6 +754,7 @@ function showOverlay(message, button) {
 
 function startSnake() {
     if (snakeState === 'running') return;
+    shareBtn.hidden = true;
     if (snakeState !== 'paused') resetSnake();
     snakeState = 'running';
     snakeOverlay.hidden = true;
@@ -735,9 +784,33 @@ function gameOver() {
         message += '<br>★ NOUVEAU RECORD ★';
     }
     showOverlay(message, '↺ Rejouer');
+    lastScore = score;
+    shareBtn.hidden = score === 0;
 }
 
 snakeStartBtn.addEventListener('click', startSnake);
+
+// Partager son score (partage natif sur mobile, sinon copie dans le presse-papiers)
+const shareBtn = document.getElementById('snake-share');
+let lastScore = 0;
+
+shareBtn.addEventListener('click', async () => {
+    const url = 'https://portfolio-eloiserobert.vercel.app/#arcade';
+    const text = `🐍 J'ai mangé ${lastScore} bug${lastScore > 1 ? 's' : ''} au Snake sur le portfolio d'Eloïse Robert ! Tu peux battre mon score ?`;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: 'Snake — Portfolio Eloïse Robert', text, url });
+        } catch (err) { /* partage annulé */ }
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        showToast('📋', 'SCORE COPIÉ', 'Colle-le où tu veux pour défier tes amis !');
+    } catch (err) {
+        showToast('⚠️', 'OUPS', 'Impossible de copier le score.');
+    }
+});
 
 // Clavier : flèches / ZQSD / WASD, espace pour la pause
 const KEY_DIRS = {
@@ -747,7 +820,7 @@ const KEY_DIRS = {
 
 document.addEventListener('keydown', (e) => {
     const onArcade = !document.querySelector('[data-screen="arcade"]').hidden;
-    if (!onArcade || a11yDialog.open || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (!onArcade || a11yDialog.open || palette.open || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
 
@@ -801,7 +874,8 @@ const a11yBtn = document.getElementById('a11y-btn');
 // Applique les réglages sur <html> (le CSS s'occupe du reste)
 function applyA11y() {
     const root = document.documentElement;
-    if (save.font === 'pixel') delete root.dataset.font; else root.dataset.font = save.font;
+    const font = save.font === 'pixel' && save.classic ? 'lexend' : save.font;
+    if (font === 'pixel') delete root.dataset.font; else root.dataset.font = font;
     if (save.spacing) root.dataset.spacing = 'on'; else delete root.dataset.spacing;
     if (save.crt) delete root.dataset.crt; else root.dataset.crt = 'off';
     if (save.motion) delete root.dataset.motion; else root.dataset.motion = 'off';
@@ -863,6 +937,308 @@ a11yDialog.addEventListener('click', (e) => {
     if (e.target === a11yDialog) a11yDialog.close();
 });
 
+/* --- 19. VERSION CLASSIQUE ("recruteur pressé") --- */
+const footerClassic = document.getElementById('footer-classic');
+
+function setClassic(on) {
+    save.classic = on;
+    persist();
+    if (on) document.documentElement.dataset.mode = 'classic';
+    else delete document.documentElement.dataset.mode;
+    applyA11y(); // police lisible automatique en version classique
+
+    setClassicLabels();
+
+    if (on) {
+        pauseSnake();
+        window.scrollTo(0, 0);
+    } else {
+        showScreen(location.hash.slice(1) || 'map');
+    }
+}
+
+document.getElementById('classic-btn').addEventListener('click', (e) => {
+    e.stopPropagation(); // ne pas déclencher "PRESS START"
+    setClassic(true);
+    startGame();
+});
+
+document.getElementById('game-mode-btn').addEventListener('click', () => setClassic(false));
+
+function setClassicLabels() {
+    footerClassic.textContent = save.classic ? 'Version jeu' : 'Version classique';
+    footerClassic.href = save.classic ? '?mode=jeu' : '?mode=classique';
+}
+
+footerClassic.addEventListener('click', (e) => {
+    e.preventDefault();
+    setClassic(!save.classic);
+});
+
+/* --- 20. PROJETS GITHUB MIS À JOUR AUTOMATIQUEMENT (API GitHub) --- */
+const GH_USER = 'elo41flo';
+const GH_CACHE = 'elo-gh-cache';
+const LANG_COLORS = {
+    HTML: '#e34c26', CSS: '#563d7c', JavaScript: '#f1e05a', TypeScript: '#3178c6',
+    PHP: '#4f5d95', Blade: '#f7523f', Python: '#3572a5', Lua: '#000080', Luau: '#00a2ff', Vue: '#41b883'
+};
+
+async function fetchGithub() {
+    // Cache de 30 minutes dans l'onglet : l'API publique est limitée à 60 requêtes/heure
+    try {
+        const cached = JSON.parse(sessionStorage.getItem(GH_CACHE));
+        if (cached && Date.now() - cached.time < 30 * 60 * 1000) return cached.data;
+    } catch (e) { /* pas de cache */ }
+
+    const [userRes, reposRes] = await Promise.all([
+        fetch(`https://api.github.com/users/${GH_USER}`),
+        fetch(`https://api.github.com/users/${GH_USER}/repos?sort=pushed&per_page=100`)
+    ]);
+    if (!userRes.ok || !reposRes.ok) throw new Error('GitHub indisponible');
+
+    const data = { user: await userRes.json(), repos: await reposRes.json() };
+    try { sessionStorage.setItem(GH_CACHE, JSON.stringify({ time: Date.now(), data })); } catch (e) { /* ignore */ }
+    return data;
+}
+
+function repoCard(repo) {
+    // Construit avec textContent : aucune donnée externe n'est interprétée comme du HTML
+    const card = document.createElement('a');
+    card.className = 'repo';
+    card.href = repo.html_url;
+    card.target = '_blank';
+    card.rel = 'noopener';
+
+    const name = document.createElement('span');
+    name.className = 'repo-name';
+    name.textContent = repo.name;
+
+    const desc = document.createElement('p');
+    desc.textContent = repo.description || 'Pas encore de description.';
+
+    const meta = document.createElement('span');
+    meta.className = 'repo-meta';
+    if (repo.language) {
+        const lang = document.createElement('span');
+        lang.className = 'lang';
+        const dot = document.createElement('i');
+        dot.style.setProperty('--l', LANG_COLORS[repo.language] || 'var(--muted)');
+        lang.append(dot, repo.language);
+        meta.append(lang);
+    }
+    if (repo.stargazers_count) {
+        const stars = document.createElement('span');
+        stars.textContent = `⭐ ${repo.stargazers_count}`;
+        meta.append(stars);
+    }
+    const date = document.createElement('span');
+    date.textContent = 'Mis à jour le ' + new Date(repo.pushed_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    meta.append(date);
+
+    card.append(name, desc, meta);
+    return card;
+}
+
+async function loadGithub() {
+    const status = document.getElementById('gh-status');
+    const list = document.getElementById('gh-repos');
+    const stats = document.getElementById('gh-stats');
+
+    try {
+        const { user, repos } = await fetchGithub();
+        const recent = repos
+            .filter(r => !r.fork && r.name !== GH_USER)
+            .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
+            .slice(0, 6);
+        if (!recent.length) throw new Error('Aucun dépôt');
+
+        list.replaceChildren(...recent.map(repoCard));
+        status.textContent = `Mis à jour automatiquement depuis GitHub · mes ${recent.length} projets les plus récents.`;
+
+        const since = new Date(user.created_at).getFullYear();
+        stats.textContent = `📦 ${user.public_repos} dépôts publics · 🗓️ sur GitHub depuis ${since}`;
+        stats.hidden = false;
+    } catch (err) {
+        // En cas d'échec, on garde la liste écrite dans le HTML
+        status.textContent = 'GitHub ne répond pas pour le moment : voici mes projets épinglés.';
+    }
+}
+
+/* --- 21. BADGE ÉCO-CONÇU (mesure en direct, façon EcoIndex) --- */
+// Méthode EcoIndex (ecoindex.fr) : nombre d'éléments, de requêtes et poids de la page
+const ECO_Q = {
+    dom: [0, 47, 75, 159, 233, 298, 358, 417, 476, 537, 603, 674, 753, 843, 949, 1076, 1237, 1459, 1801, 2479, 594601],
+    req: [0, 2, 15, 25, 34, 42, 49, 56, 63, 70, 78, 86, 95, 105, 117, 130, 147, 170, 205, 281, 3920],
+    size: [0, 1.37, 144.7, 319.53, 479.46, 631.97, 783.38, 937.91, 1098.62, 1265.47, 1448.32, 1648.27, 1876.08, 2142.06, 2465.37, 2866.31, 3401.59, 4155.73, 5400.08, 8037.54, 223212.26]
+};
+const ECO_GRADES = [
+    { min: 80, grade: 'A', color: '#349a47' }, { min: 70, grade: 'B', color: '#51b84b' },
+    { min: 55, grade: 'C', color: '#cadb2a' }, { min: 40, grade: 'D', color: '#f6eb15' },
+    { min: 25, grade: 'E', color: '#fecd06' }, { min: 10, grade: 'F', color: '#f99839' },
+    { min: -Infinity, grade: 'G', color: '#ed2124' }
+];
+
+function ecoQuantile(table, value) {
+    for (let i = 1; i < table.length; i++) {
+        if (value < table[i]) return i - 1 + (value - table[i - 1]) / (table[i] - table[i - 1]);
+    }
+    return table.length - 1;
+}
+
+function measureEco() {
+    const sizeOf = e => e.transferSize || e.encodedBodySize || 0;
+    const nav = performance.getEntriesByType('navigation')[0];
+    const resources = performance.getEntriesByType('resource');
+    const kb = ((nav ? sizeOf(nav) : 0) + resources.reduce((t, e) => t + sizeOf(e), 0)) / 1024;
+    const requests = resources.length + 1;
+    const dom = document.getElementsByTagName('*').length;
+
+    const score = Math.round(100 - 5 * (3 * ecoQuantile(ECO_Q.dom, dom) + 2 * ecoQuantile(ECO_Q.req, requests) + ecoQuantile(ECO_Q.size, kb)) / 6);
+    const { grade, color } = ECO_GRADES.find(g => score > g.min);
+
+    const badge = document.getElementById('eco-badge');
+    const gradeEl = document.createElement('span');
+    gradeEl.className = 'eco-grade';
+    gradeEl.style.background = color;
+    gradeEl.textContent = grade;
+    badge.replaceChildren(
+        `🌱 Empreinte de cette page : ${Math.round(kb)} Ko · ${requests} requêtes · ${dom} éléments · EcoIndex estimé `,
+        gradeEl,
+        ` ${score}/100`
+    );
+    badge.title = 'Mesuré en direct dans ton navigateur, selon la méthode EcoIndex (ecoindex.fr)';
+    badge.hidden = false;
+}
+
+/* --- 22. PALETTE DE COMMANDES (Ctrl + K) --- */
+const palette = document.getElementById('palette');
+const paletteInput = document.getElementById('palette-input');
+const paletteList = document.getElementById('palette-list');
+const paletteBtn = document.getElementById('palette-btn');
+let paletteItems = [];
+let paletteIndex = 0;
+
+const go = hash => () => { location.hash = hash; };
+const normalize = str => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function paletteCommands() {
+    const levels = [...levelLinks].map(link => ({
+        icon: link.querySelector('.level-icon').textContent,
+        label: link.querySelector('.level-name').textContent,
+        hint: link.querySelector('.level-num').textContent,
+        keywords: link.querySelector('.level-sub').textContent,
+        run: go(link.getAttribute('href').slice(1))
+    }));
+    return [
+        { icon: '🗺️', label: 'Carte du monde', hint: 'accueil', keywords: 'home menu', run: go('map') },
+        ...levels,
+        { icon: '🏆', label: 'Succès débloqués', hint: 'trophées', keywords: 'achievements', run: go('trophees') },
+        { icon: '🐍', label: 'Jouer au Snake', hint: 'action', keywords: 'jeu arcade', run: () => { location.hash = 'arcade'; startSnake(); } },
+        { icon: '📨', label: 'Proposer un stage', hint: 'contact', keywords: 'recrutement alternance', run: () => { objetSelect.value = 'stage'; location.hash = 'contact'; } },
+        { icon: '💰', label: 'Demander un devis', hint: 'contact', keywords: 'prix tarif client', run: () => { objetSelect.value = 'devis'; location.hash = 'contact'; } },
+        { icon: '📜', label: 'Télécharger mon CV', hint: 'PDF', keywords: 'curriculum resume', run: () => document.querySelector('.cv-btn').click() },
+        { icon: '🎨', label: 'Changer de thème', hint: 'action', keywords: 'couleur theme', run: () => themeBtn.click() },
+        { icon: save.sound ? '🔇' : '🔊', label: save.sound ? 'Couper le son' : 'Activer le son', hint: 'action', keywords: 'audio musique', run: () => soundBtn.click() },
+        { icon: '♿', label: "Options d'accessibilité", hint: 'action', keywords: 'dyslexie daltonisme police', run: () => a11yBtn.click() },
+        { icon: save.classic ? '🎮' : '📄', label: save.classic ? 'Revenir à la version jeu' : 'Version classique (recruteurs)', hint: 'mode', keywords: 'sobre simple recruteur', run: () => setClassic(!save.classic) },
+        { icon: '🗂️', label: 'Plan du site', hint: 'page', keywords: 'sitemap', run: go('plan') },
+        { icon: '📜', label: 'Mentions légales', hint: 'page', keywords: 'siret legal', run: go('mentions') },
+        { icon: '🔒', label: 'Confidentialité', hint: 'page', keywords: 'rgpd donnees', run: go('confidentialite') }
+    ];
+}
+
+function renderPalette() {
+    const query = normalize(paletteInput.value.trim());
+    // Les commandes dont le nom correspond passent avant celles trouvées par mot-clé
+    const byLabel = c => (normalize(c.label).includes(query) ? 0 : 1);
+    paletteItems = paletteCommands()
+        .filter(c => normalize(`${c.label} ${c.hint} ${c.keywords}`).includes(query))
+        .sort((a, b) => byLabel(a) - byLabel(b));
+    paletteIndex = Math.min(paletteIndex, Math.max(paletteItems.length - 1, 0));
+
+    if (!paletteItems.length) {
+        const empty = document.createElement('li');
+        empty.className = 'palette-empty';
+        empty.textContent = `Commande inconnue : « ${paletteInput.value} »`;
+        paletteList.replaceChildren(empty);
+        paletteInput.removeAttribute('aria-activedescendant');
+        return;
+    }
+
+    paletteList.replaceChildren(...paletteItems.map((cmd, i) => {
+        const li = document.createElement('li');
+        li.className = 'palette-item';
+        li.id = `palette-item-${i}`;
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', String(i === paletteIndex));
+
+        const icon = document.createElement('span');
+        icon.className = 'palette-item-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = cmd.icon;
+        const label = document.createElement('span');
+        label.className = 'palette-item-label';
+        label.textContent = cmd.label;
+        const hint = document.createElement('span');
+        hint.className = 'palette-item-hint';
+        hint.textContent = cmd.hint;
+
+        li.append(icon, label, hint);
+        li.addEventListener('click', () => runPalette(i));
+        li.addEventListener('mousemove', () => { if (paletteIndex !== i) { paletteIndex = i; renderPalette(); } });
+        return li;
+    }));
+    paletteInput.setAttribute('aria-activedescendant', `palette-item-${paletteIndex}`);
+    document.getElementById(`palette-item-${paletteIndex}`).scrollIntoView({ block: 'nearest' });
+}
+
+function openPalette() {
+    if (palette.open) return;
+    if (a11yDialog.open) a11yDialog.close();
+    pauseSnake();
+    paletteInput.value = '';
+    paletteIndex = 0;
+    renderPalette();
+    palette.showModal();
+    paletteInput.focus();
+    sfx.select();
+    unlock('palette');
+}
+
+function runPalette(i) {
+    const cmd = paletteItems[i];
+    if (!cmd) return;
+    palette.close();
+    if (!started) startGame();
+    cmd.run();
+}
+
+paletteInput.addEventListener('input', () => { paletteIndex = 0; renderPalette(); });
+
+paletteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const step = e.key === 'ArrowDown' ? 1 : -1;
+        paletteIndex = (paletteIndex + step + paletteItems.length) % Math.max(paletteItems.length, 1);
+        renderPalette();
+        sfx.move();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        runPalette(paletteIndex);
+    }
+});
+
+// Ctrl + K (ou Cmd + K sur Mac) depuis n'importe où
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        palette.open ? palette.close() : openPalette();
+    }
+});
+
+paletteBtn.addEventListener('click', openPalette);
+palette.addEventListener('click', (e) => { if (e.target === palette) palette.close(); });
+
 /* --- INITIALISATION --- */
 applyTheme(save.theme);
 applyA11y();
@@ -871,11 +1247,17 @@ renderXp();
 renderAchievements();
 renderClearedLevels();
 
-// On saute l'écran titre si la partie a déjà été lancée dans cet onglet
-// ou si on arrive directement sur une section (lien partagé)
+if (save.classic) document.documentElement.dataset.mode = 'classic';
+setClassicLabels();
+loadGithub();
+// Le badge éco est calculé une fois la page entièrement chargée
+window.addEventListener('load', () => setTimeout(measureEco, 1500));
+
+// On saute l'écran titre si la partie a déjà été lancée dans cet onglet,
+// si on arrive directement sur une section (lien partagé) ou en version classique
 let alreadyStarted = false;
 try { alreadyStarted = sessionStorage.getItem('elo-started') === '1'; } catch (e) { /* ignore */ }
-if (alreadyStarted || (location.hash && location.hash !== '#map')) {
+if (save.classic || alreadyStarted || (location.hash && location.hash !== '#map')) {
     titleScreen.hidden = true;
     startGame();
 }

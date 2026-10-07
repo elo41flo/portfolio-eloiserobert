@@ -387,6 +387,13 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     flex-shrink: 0;
 }
 
+/* Avatar pixel art (image SVG générée en JS) */
+[data-avatar] img {
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+}
+
 .hud-avatar {
     width: 30px;
 }
@@ -1490,6 +1497,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 }
 
 .field input,
+.field select,
 .field textarea {
     padding: 12px;
     background: var(--deep);
@@ -1502,6 +1510,7 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
     border-color: var(--pink);
 }
@@ -2068,6 +2077,63 @@ body.rainbow .panel {
     color: var(--yellow);
 }
 
+/* FAQ de la boutique */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.faq-item {
+    background: var(--bg-2);
+    border: 2px solid var(--border);
+}
+
+.faq-item[open] {
+    border-color: var(--yellow);
+}
+
+.faq-item summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--heading);
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: '+';
+    margin-left: auto;
+    font-family: var(--font-pixel);
+    font-size: 0.8rem;
+    color: var(--yellow);
+}
+
+.faq-item[open] summary::after {
+    content: '−';
+}
+
+.faq-icon {
+    font-size: 1.3rem;
+}
+
+.faq-item p {
+    padding: 0 14px 14px 50px;
+    color: var(--muted);
+}
+
+@media (max-width: 640px) {
+    .faq-item p {
+        padding-left: 14px;
+    }
+}
+
 .actions.center {
     justify-content: center;
 }
@@ -2229,6 +2295,236 @@ body.rainbow .panel {
     gap: 14px;
 }
 
+
+/* --- NOUVEAUTÉS : boutons, badge éco, GitHub, palette, mode classique --- */
+
+/* Lien de site qui n'est plus en ligne */
+.pixel-btn.offline {
+    background: var(--bg-2);
+    color: var(--muted);
+    box-shadow: none;
+    border-style: dashed;
+    border-color: var(--border);
+    cursor: not-allowed;
+}
+
+.shop-choose {
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+/* Bouton "version classique" sur l'écran titre */
+.classic-btn {
+    position: relative;
+    padding: 8px 14px;
+    border: 2px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    color: var(--muted);
+    font-size: 1.15rem;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.classic-btn:hover,
+.classic-btn:focus-visible {
+    border-color: var(--cyan);
+    color: var(--heading);
+}
+
+/* Badge éco-conçu (pied de page) */
+.eco-badge {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 12px;
+    margin: 4px auto 10px;
+    padding: 6px 12px;
+    border: 2px solid var(--green);
+    background: var(--deep);
+    color: var(--text);
+    font-size: 1.05rem;
+}
+
+.eco-grade {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6em;
+    padding: 0 4px;
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
+    color: #000;
+}
+
+/* GitHub : statut et statistiques */
+.gh-status {
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin: -6px 0 14px;
+}
+
+.gh-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    color: var(--yellow) !important;
+}
+
+.repo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+/* Palette de commandes */
+.palette {
+    width: min(600px, calc(100vw - 32px));
+    max-height: min(520px, calc(100vh - 64px));
+    margin: 12vh auto auto;
+    padding: 0;
+    color: var(--text);
+    overflow: hidden;
+}
+
+.palette[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.palette::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.palette-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--border);
+    background: var(--deep);
+}
+
+.palette-prompt {
+    font-family: var(--font-pixel);
+    color: var(--green);
+    animation: blink 1s steps(1) infinite;
+}
+
+.palette-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--heading);
+    font-size: 1.4rem;
+}
+
+.palette-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+}
+
+.palette-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.palette-item[aria-selected="true"] {
+    background: var(--panel-2);
+    border-color: var(--yellow);
+}
+
+.palette-item-icon {
+    width: 1.6em;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.palette-item-label {
+    flex: 1;
+}
+
+.palette-item-hint {
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+.palette-empty {
+    padding: 14px;
+    color: var(--muted);
+}
+
+.palette-help {
+    padding: 8px 16px;
+    border-top: 2px solid var(--border);
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+/* --- MODE "RECRUTEUR PRESSÉ" (version classique) --- */
+.classic-bar {
+    display: none;
+}
+
+:root[data-mode="classic"] .classic-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 24px;
+    padding: 12px 20px;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: var(--px) solid var(--border);
+}
+
+.classic-name {
+    color: var(--heading);
+}
+
+.classic-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    flex: 1;
+}
+
+.classic-nav a {
+    color: var(--cyan);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Pas d'écran titre, de HUD ni d'effets : tout le contenu sur une seule page */
+:root[data-mode="classic"] :is(.title-screen, .hud, .crt, .back-btn, .level-up, .secret-hint, .toast-zone) {
+    display: none !important;
+}
+
+:root[data-mode="classic"] .screen:not([data-classic="hide"]) {
+    display: block !important;
+    animation: none;
+    scroll-margin-top: 90px;
+}
+
+:root[data-mode="classic"] .screen[data-classic="hide"] {
+    display: none !important;
+}
+
+:root[data-mode="classic"] .screen:not([data-classic="hide"]) ~ .screen:not([data-classic="hide"]) {
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: var(--px) dashed var(--border);
+}
 
 /* --- 19. ACCESSIBILITÉ : POLICES LISIBLES (dyslexie) --- */
 /* Les polices pixel sont dessinées très petites : on réduit la base
@@ -2479,6 +2775,10 @@ body.rainbow .panel {
     #theme-name,
     .hud-btn-label {
         display: none;
+    }
+
+    .classic-name {
+        flex-basis: 100%;
     }
 
     .toast-zone {

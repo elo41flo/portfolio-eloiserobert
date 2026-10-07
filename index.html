@@ -12,18 +12,8 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0d0b1e">
 
-    <!-- Applique les préférences sauvegardées (thème, accessibilité) avant l'affichage -->
-    <script>
-        try {
-            var prefs = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}');
-            var root = document.documentElement;
-            if (prefs.theme && prefs.theme !== 'neon') root.dataset.theme = prefs.theme;
-            if (prefs.font && prefs.font !== 'pixel') root.dataset.font = prefs.font;
-            if (prefs.spacing) root.dataset.spacing = 'on';
-            if (prefs.crt === false) root.dataset.crt = 'off';
-            if (prefs.motion === false) root.dataset.motion = 'off';
-        } catch (e) {}
-    </script>
+    <!-- Applique les préférences sauvegardées (thème, accessibilité, mode) avant l'affichage -->
+    <script src="prefs.js"></script>
 
     <!-- URL canonique (à adapter si le site change de domaine) -->
     <link rel="canonical" href="https://portfolio-eloiserobert.vercel.app/">
@@ -127,11 +117,26 @@
             <span class="blink">▶ PRESS START</span>
         </button>
         <p class="title-hint">Appuie sur <kbd>Entrée</kbd> ou clique pour jouer</p>
+        <button type="button" class="classic-btn" id="classic-btn">📄 Pas le temps de jouer ? Version classique</button>
         <p class="hi-score">HI-SCORE <span id="title-hiscore">000000</span> · 1 PLAYER</p>
     </section>
 
     <!-- ===================== JEU ===================== -->
     <div id="game" class="game">
+
+        <!-- Barre du mode "recruteur pressé" (cachée en mode jeu) -->
+        <header class="classic-bar">
+            <p class="classic-name"><strong>Eloise Robert</strong> — Développeuse web · BTS SIO option SLAM</p>
+            <nav class="classic-nav" aria-label="Sections du portfolio">
+                <a href="#profil">Profil</a>
+                <a href="#vscode">Projets</a>
+                <a href="#certifications">Certifications</a>
+                <a href="#e5">BTS SIO</a>
+                <a href="#boutique">Services</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            <button type="button" class="pixel-btn alt" id="game-mode-btn">🎮 Version jeu</button>
+        </header>
 
         <!-- HUD (barre du haut) -->
         <header class="hud">
@@ -140,13 +145,14 @@
                 <span class="hud-name">ELO</span>
                 <span class="hud-lvl">LV <strong id="hud-level">1</strong></span>
             </a>
-            <div class="hud-xp" aria-label="Expérience">
-                <span class="hud-label">XP</span>
-                <div class="bar"><div class="bar-fill" id="xp-fill"></div></div>
+            <div class="hud-xp">
+                <span class="hud-label" aria-hidden="true">XP</span>
+                <div class="bar" id="xp-bar" role="progressbar" aria-label="Expérience vers le niveau suivant" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar-fill" id="xp-fill"></div></div>
                 <span class="hud-xp-text" id="xp-text">0/100</span>
             </div>
             <div class="hud-right">
                 <a href="#trophees" class="hud-btn" aria-label="Succès débloqués">🏆 <span id="ach-count">0</span>/<span id="ach-total">0</span></a>
+                <button type="button" class="hud-btn" id="palette-btn" aria-haspopup="dialog" aria-controls="palette" aria-keyshortcuts="Control+K">⌨️ <span class="hud-btn-label">Ctrl K</span></button>
                 <button type="button" class="hud-btn" id="a11y-btn" aria-haspopup="dialog" aria-controls="a11y-dialog">♿ <span class="hud-btn-label">Accessibilité</span></button>
                 <button type="button" class="hud-btn" id="theme-btn" aria-label="Changer de thème de couleurs">🎨 <span id="theme-name">Néon</span></button>
                 <button type="button" class="hud-btn" id="sound-btn" aria-pressed="false" aria-label="Activer le son">🔇</button>
@@ -161,7 +167,7 @@
                 <span><strong>En recherche de stage</strong> — BTS SIO option SLAM (développement)</span>
             </p>
             <div class="stage-banner-actions">
-                <a href="#contact" class="pixel-btn">📨 Me contacter</a>
+                <a href="#contact" class="pixel-btn" data-objet="stage">📨 Me contacter</a>
                 <a href="cv-eloise-robert.pdf" class="pixel-btn alt" download>📜 Mon CV</a>
             </div>
         </aside>
@@ -169,7 +175,7 @@
         <main id="main" class="stage" tabindex="-1">
 
             <!-- ============ CARTE DU MONDE (accueil) ============ -->
-            <section class="screen" data-screen="map" aria-labelledby="map-title">
+            <section class="screen" data-classic="hide" data-screen="map" aria-labelledby="map-title">
                 <div class="dialog-box intro-dialog">
                     <span class="dialog-name">ELO</span>
                     <p class="typewriter" data-text="Bienvenue dans l'aventure ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !">Bienvenue dans l'aventure ! Je suis Eloïse, développeuse web indépendante et étudiante en BTS SIO au CNED. Je crée des sites vitrines modernes, rapides et éco-conçus. Choisis un niveau pour explorer mon univers !</p>
@@ -272,13 +278,23 @@
                     <h3 class="panel-title">💼 Expériences professionnelles</h3>
                     <ul class="jobs">
                         <li class="job current">
+                            <span class="job-icon" aria-hidden="true">🚀</span>
+                            <div class="job-body">
+                                <span class="timeline-status">2026 – AUJOURD'HUI</span>
+                                <h4>Développeuse web indépendante</h4>
+                                <p class="job-place">📍 Micro-entreprise · Mer</p>
+                                <p class="job-desc">Sites vitrines, WordPress et e-commerce pour commerçants et artisans. Prise en charge complète : recueil du besoin, maquette Figma, développement, mise en ligne et prise en main par le client. Audits de performance, d'accessibilité, d'éco-conception et de SEO.</p>
+                                <ul class="chips"><li>Gestion de projet</li><li>WordPress</li><li>Figma</li><li>SEO</li></ul>
+                            </div>
+                        </li>
+                        <li class="job">
                             <span class="job-icon" aria-hidden="true">💻</span>
                             <div class="job-body">
                                 <span class="timeline-status">2026</span>
                                 <h4>Stagiaire développeuse web</h4>
                                 <p class="job-place">📍 Culture Com · Blois</p>
-                                <p class="job-desc">Développement de sites WordPress et création de plugins WordPress en PHP.</p>
-                                <ul class="chips"><li>WordPress</li><li>PHP</li><li>Plugins</li></ul>
+                                <p class="job-desc">Développement de sites WordPress pour les clients de l'agence, création de plugins WordPress sur mesure en PHP et maintenance évolutive de sites déjà en ligne.</p>
+                                <ul class="chips"><li>WordPress</li><li>PHP</li><li>Plugins</li><li>Maintenance</li></ul>
                             </div>
                         </li>
                         <li class="job">
@@ -319,6 +335,7 @@
                         <li class="item" data-lvl="4"><span class="item-icon">⚡</span><span class="item-name">JavaScript</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">⚛️</span><span class="item-name">React.js</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🟢</span><span class="item-name">Node.js</span></li>
+                        <li class="item" data-lvl="3"><span class="item-icon">🔺</span><span class="item-name">Laravel</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🐘</span><span class="item-name">PHP</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🗄️</span><span class="item-name">SQL</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🗂️</span><span class="item-name">Merise</span></li>
@@ -337,6 +354,8 @@
                         <div class="gear-slot"><h4>Conception & BDD</h4><ul class="chips"><li>Merise</li><li>Looping</li><li>Access</li></ul></div>
                         <div class="gear-slot"><h4>Design & média</h4><ul class="chips"><li>Figma</li><li>Canva</li><li>XnConvert</li></ul></div>
                         <div class="gear-slot"><h4>Développement</h4><ul class="chips"><li>VS Code</li><li>Git / GitHub</li><li>XAMPP</li></ul></div>
+                        <div class="gear-slot"><h4>Qualité web</h4><ul class="chips"><li>Lighthouse</li><li>WAVE</li><li>EcoIndex</li><li>Core Web Vitals</li></ul></div>
+                        <div class="gear-slot"><h4>Bureautique</h4><ul class="chips"><li>Microsoft 365</li><li>Teams</li></ul></div>
                     </div>
                 </section>
 
@@ -424,7 +443,7 @@
                         <div class="cart-cover" style="--a:#ff2d20; --b:#6b0f0a">☕<span class="cart-label">CAF'THÉ</span></div>
                         <header class="quest-head"><h3>Caf'Thé — Dashboard</h3><div class="badges"><span class="badge laravel">Laravel</span></div></header>
                         <p>Projet pédagogique pour la certification Back-end (passage en avril 2027).</p>
-                        <div class="actions"><a href="https://cafthe-dashboard.erobert.dev-campus.fr" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a></div>
+                        <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
                     </article>
 
                     <article class="panel cartridge" data-tech="react css node">
@@ -498,13 +517,13 @@
                         <div class="cart-cover" style="--a:#3cff8f; --b:#0b3a22">🌍<span class="cart-label">ODD</span></div>
                         <header class="quest-head"><h3>Projet ODD</h3><div class="badges"><span class="badge wp">WordPress</span></div></header>
                         <p>Projet client réalisé pour passer la certification WordPress. Focus sur l'éco-conception et le développement durable.</p>
-                        <div class="actions"><a href="https://odd-eloise-robert.erobert.dev-campus.fr/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a></div>
+                        <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
                     </article>
                     <article class="panel cartridge">
                         <div class="cart-cover" style="--a:#21759b; --b:#0a2433">📁<span class="cart-label">PORTFOLIO</span></div>
                         <header class="quest-head"><h3>Ancien portfolio</h3><div class="badges"><span class="badge wp">WordPress</span></div></header>
                         <p>Adaptation de mon premier design en thème WordPress pour apprendre la gestion des contenus dynamiques.</p>
-                        <div class="actions"><a href="https://portfolio.erobert.dev-campus.fr/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a></div>
+                        <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
                     </article>
                 </div>
             </section>
@@ -553,6 +572,7 @@
                         <h3 class="char-name">Éloïse Robert</h3>
                         <p class="gh-user">@elo41flo · elle</p>
                         <p>Salut, moi c'est @elo41flo 👋 Actuellement en BTS SIO au CNED, après une formation de développeuse web et mobile à la Fabrique du Numérique.</p>
+                        <p class="gh-stats" id="gh-stats" hidden></p>
                         <a href="https://github.com/elo41flo" target="_blank" rel="noopener" class="pixel-btn">🐙 Voir sur GitHub</a>
                     </div>
                 </article>
@@ -565,8 +585,9 @@
                 </section>
 
                 <section class="panel">
-                    <h3 class="panel-title">📌 Épinglés</h3>
-                    <div class="card-grid small">
+                    <h3 class="panel-title">🔄 Projets récents</h3>
+                    <p class="gh-status" id="gh-status" aria-live="polite">Projets épinglés (mise à jour automatique depuis GitHub en cours…)</p>
+                    <div class="card-grid small" id="gh-repos">
                         <a href="https://github.com/elo41flo/FleurdePau" target="_blank" rel="noopener" class="repo">
                             <span class="repo-name">FleurdePau</span>
                             <p>Site e-commerce d'entraînement.</p>
@@ -629,7 +650,7 @@
             </section>
 
             <!-- ============ SUCCÈS (trophées du jeu) ============ -->
-            <section class="screen" data-screen="trophees" aria-labelledby="ach-title" hidden>
+            <section class="screen" data-classic="hide" data-screen="trophees" aria-labelledby="ach-title" hidden>
                 <div class="screen-head">
                     <a href="#map" class="back-btn">◀ Retour</a>
                     <h2 id="ach-title" class="screen-title">🏆 Succès débloqués</h2>
@@ -657,6 +678,7 @@
                         <p>Présentez votre activité avec un site moderne, rapide, adapté au mobile et bien référencé.</p>
                         <ul class="shop-perks"><li>Design sur mesure (maquette Figma)</li><li>Responsive & éco-conçu</li><li>Formulaire de contact</li><li>SEO de base</li></ul>
                         <span class="shop-price">💰 Sur devis</span>
+                        <a href="#contact" class="pixel-btn alt shop-choose" data-objet="devis-vitrine">Choisir cette offre</a>
                     </article>
                     <article class="panel shop-item">
                         <span class="shop-icon">🏰</span>
@@ -664,6 +686,7 @@
                         <p>Un site que vous modifiez vous-même facilement : actualités, pages, photos.</p>
                         <ul class="shop-perks"><li>Thème personnalisé</li><li>Prise en main incluse</li><li>Contenus autonomes</li><li>Certifiée WordPress</li></ul>
                         <span class="shop-price">💰 Sur devis</span>
+                        <a href="#contact" class="pixel-btn alt shop-choose" data-objet="devis-wordpress">Choisir cette offre</a>
                     </article>
                     <article class="panel shop-item">
                         <span class="shop-icon">🛍️</span>
@@ -671,6 +694,7 @@
                         <p>Vendez vos produits en ligne avec une boutique simple à gérer, comme pour Fleur de Pau.</p>
                         <ul class="shop-perks"><li>Catalogue produits</li><li>Paiement sécurisé</li><li>Interface d'administration</li><li>Gestion des commandes</li></ul>
                         <span class="shop-price">💰 Sur devis</span>
+                        <a href="#contact" class="pixel-btn alt shop-choose" data-objet="devis-ecommerce">Choisir cette offre</a>
                     </article>
                     <article class="panel shop-item">
                         <span class="shop-icon">🛠️</span>
@@ -678,16 +702,63 @@
                         <p>Votre site est lent, daté ou mal référencé ? On lui redonne des points de vie.</p>
                         <ul class="shop-perks"><li>Audit Lighthouse & EcoIndex</li><li>Amélioration du SEO</li><li>Accessibilité (RGAA)</li><li>Optimisation des images</li></ul>
                         <span class="shop-price">💰 Sur devis</span>
+                        <a href="#contact" class="pixel-btn alt shop-choose" data-objet="devis-refonte">Choisir cette offre</a>
                     </article>
                 </div>
 
+                <section class="panel faq" aria-labelledby="faq-title">
+                    <h3 id="faq-title" class="panel-title">❓ Questions fréquentes</h3>
+                    <div class="faq-list">
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">⏳</span>Combien de temps faut-il pour créer un site ?</summary>
+                            <p>Entre <strong>1 semaine et 2 mois</strong>, selon la taille du projet. Un site vitrine simple va vite ; les projets les plus complexes, comme un site e-commerce avec un tableau de bord d'administration, demandent plus de temps.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">📝</span>Comment se passe le devis ? Est-il gratuit et sans engagement ?</summary>
+                            <p>Oui, le devis est <strong>gratuit et sans engagement</strong>. Décrivez-moi votre projet via le formulaire de contact et je vous réponds avec une proposition adaptée.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">💳</span>Comment se passe le paiement ?</summary>
+                            <p>Un <strong>acompte de 10 %</strong> est demandé à la commande. Le reste est à régler à la livraison du site, dans un <strong>délai d'un mois</strong>.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">🌐</span>Qui s'occupe de l'hébergement et du nom de domaine ?</summary>
+                            <p>J'héberge votre site sur une infrastructure professionnelle (<strong>Vercel</strong>) : l'hébergement est <strong>inclus dans le forfait maintenance à 25 € par mois</strong>. Sans forfait, je vous aide à mettre votre site en ligne chez l'hébergeur de votre choix. Le nom de domaine (par exemple <em>votre-entreprise.fr</em>) est à votre charge : c'est vous qui le choisissez et le payez. Si besoin, je vous conseille sur les sites où l'acheter.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">🔑</span>Le site m'appartiendra-t-il entièrement ?</summary>
+                            <p>Oui. Le site vous appartient : vous restez <strong>libre d'arrêter notre collaboration</strong> quand vous le souhaitez et de confier votre site à un autre développeur.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">✏️</span>Pourrai-je modifier mon site moi-même ?</summary>
+                            <p>Oui. Avec un site <strong>WordPress</strong>, vous gérez vos contenus en autonomie. Même pour un site vitrine classique, je peux vous fournir un <strong>tableau de bord</strong> pour faire vous-même les petites modifications.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">🛠️</span>Proposes-tu la maintenance et les mises à jour après la mise en ligne ?</summary>
+                            <p>Bien sûr ! Le <strong>forfait maintenance à 25 € par mois</strong> comprend l'<strong>hébergement de votre site</strong> et <strong>2 mises à jour par mois</strong>.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">🔍</span>Mon site sera-t-il bien référencé sur Google ?</summary>
+                            <p>Oui : chaque site est <strong>optimisé pour le référencement naturel</strong> (SEO). Un site que personne ne trouve ne sert pas à grand-chose… sauf un intranet, bien sûr !</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">📸</span>Faut-il que je fournisse les textes et les photos ?</summary>
+                            <p>Oui, c'est le mieux : vous me transmettez vos <strong>textes et photos</strong> en m'indiquant précisément où les placer sur le site. Vous rédigez aussi les <strong>mentions légales</strong> et les autres pages obligatoires selon votre activité.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary><span class="faq-icon" aria-hidden="true">📍</span>Travailles-tu uniquement près de Blois ou aussi à distance ?</summary>
+                            <p>Les deux ! Si nous sommes trop éloignés, nous travaillons ensemble <strong>en visio</strong>.</p>
+                        </details>
+                    </div>
+                </section>
+
                 <div class="actions center">
-                    <a href="#contact" class="pixel-btn">📨 Demander un devis gratuit</a>
+                    <a href="#contact" class="pixel-btn" data-objet="devis">📨 Demander un devis gratuit</a>
                 </div>
             </section>
 
             <!-- ============ 4-2 ARCADE (mini-jeu Snake) ============ -->
-            <section class="screen" data-screen="arcade" aria-labelledby="arcade-title" hidden>
+            <section class="screen" data-classic="hide" data-screen="arcade" aria-labelledby="arcade-title" hidden>
                 <div class="screen-head">
                     <a href="#map" class="back-btn">◀ Retour</a>
                     <h2 id="arcade-title" class="screen-title"><span class="world">4-2</span> Salle d'arcade</h2>
@@ -704,6 +775,7 @@
                             <div class="arcade-overlay" id="snake-overlay">
                                 <p class="arcade-msg" id="snake-msg">SNAKE.EXE</p>
                                 <button type="button" class="pixel-btn" id="snake-start">▶ Jouer</button>
+                                <button type="button" class="pixel-btn alt" id="snake-share" hidden>📤 Partager mon score</button>
                             </div>
                         </div>
                         <div class="dpad" role="group" aria-label="Croix directionnelle">
@@ -839,7 +911,7 @@
                                 <div><dt>Réalisation</dt><dd>Application back-office développée avec le framework Laravel, reliée à une base de données.</dd></div>
                                 <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative (framework, composants d'accès aux données)</li><li>Gérer les données</li></ul></dd></div>
                             </dl>
-                            <div class="actions"><a href="https://cafthe-dashboard.erobert.dev-campus.fr" target="_blank" rel="noopener" class="pixel-btn alt">🌐 Voir le site</a></div>
+                            <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
                         </div>
                     </details>
                     <details class="panel fiche" id="fiche-cafthe-eshop">
@@ -911,7 +983,7 @@
                         <div class="fiche-body">
                             <dl class="fiche-dl">
                                 <div><dt>Besoin</dt><dd>Ajouter des fonctionnalités sur mesure à des sites WordPress.</dd></div>
-                                <div><dt>Réalisation</dt><dd>Développement de sites WordPress et création de plugins en PHP. Code propriété de l'entreprise : pas de lien public.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Développement de sites WordPress pour les clients de l'agence, création de plugins sur mesure en PHP et maintenance évolutive de sites déjà en ligne. Code propriété de l'entreprise : pas de lien public.</dd></div>
                                 <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative (composants logiciels)</li><li>Assurer la maintenance corrective ou évolutive (évolution de sites existants)</li></ul></dd></div>
                             </dl>
                         </div>
@@ -1005,6 +1077,22 @@
                             <input type="email" name="email" id="email" placeholder="Ton adresse email" autocomplete="email" required>
                         </div>
                         <div class="field">
+                            <label for="objet">Objet</label>
+                            <select name="objet" id="objet" required>
+                                <option value="">— Choisis un objet —</option>
+                                <optgroup label="Demande de devis">
+                                    <option value="devis">Devis — je ne sais pas encore</option>
+                                    <option value="devis-vitrine">Devis — Site vitrine</option>
+                                    <option value="devis-wordpress">Devis — Site WordPress</option>
+                                    <option value="devis-ecommerce">Devis — Site e-commerce</option>
+                                    <option value="devis-refonte">Devis — Refonte & optimisation</option>
+                                </optgroup>
+                                <option value="stage">Proposition de stage</option>
+                                <option value="autre">Question / autre</option>
+                            </select>
+                            <input type="hidden" name="_subject" id="subject" value="Nouveau message depuis le portfolio">
+                        </div>
+                        <div class="field">
                             <label for="message">Message</label>
                             <textarea name="message" id="message" rows="5" placeholder="Bonjour Éloïse…" required></textarea>
                         </div>
@@ -1053,7 +1141,7 @@
             </section>
 
             <!-- ============ PLAN DU SITE ============ -->
-            <section class="screen" data-screen="plan" aria-labelledby="plan-title" hidden>
+            <section class="screen" data-classic="hide" data-screen="plan" aria-labelledby="plan-title" hidden>
                 <div class="screen-head">
                     <a href="#map" class="back-btn">◀ Retour</a>
                     <h2 id="plan-title" class="screen-title">🗺️ Plan du site</h2>
@@ -1125,7 +1213,7 @@
                     <p>Durée de conservation : 3 ans maximum après notre dernier échange.</p>
 
                     <h3>Hébergement et services externes</h3>
-                    <p>Le site est hébergé par <strong>Vercel Inc.</strong> (États-Unis), qui peut enregistrer des données techniques de connexion (adresse IP, navigateur) pour la sécurité et le bon fonctionnement du service. Les polices d'écriture sont chargées depuis Google Fonts et jsDelivr, le graphique GitHub depuis ghchart, et les maquettes Figma ne s'affichent que si vous cliquez sur « Charger ».</p>
+                    <p>Le site est hébergé par <strong>Vercel Inc.</strong> (États-Unis), qui peut enregistrer des données techniques de connexion (adresse IP, navigateur) pour la sécurité et le bon fonctionnement du service. Les polices d'écriture sont chargées depuis Google Fonts et jsDelivr, le graphique GitHub depuis ghchart, la liste de mes projets récents depuis l'API publique de GitHub, et les maquettes Figma ne s'affichent que si vous cliquez sur « Charger ».</p>
 
                     <h3>Stockage local</h3>
                     <p>Ta progression dans le jeu (succès, XP, record du Snake) et tes préférences (son, thème, options d'accessibilité) sont enregistrées uniquement dans le stockage local de ton navigateur. Rien n'est envoyé à un serveur, et tu peux tout effacer avec le bouton « Nouvelle partie » ou en vidant les données du site.</p>
@@ -1145,7 +1233,9 @@
                 <a href="#plan">Plan du site</a>
                 <a href="#mentions">Mentions légales</a>
                 <a href="#confidentialite">Confidentialité</a>
+                <a href="?mode=classique" id="footer-classic">Version classique</a>
             </nav>
+            <p class="eco-badge" id="eco-badge" hidden></p>
             <p class="footer-social">
                 <a href="https://github.com/elo41flo" target="_blank" rel="noopener">🐙 GitHub</a>
                 <a href="https://www.linkedin.com/in/eloise-robert-0b36902a6" target="_blank" rel="noopener">🔗 LinkedIn</a>
@@ -1194,6 +1284,17 @@
                 <button type="submit" class="pixel-btn">✔ Valider</button>
             </div>
         </form>
+    </dialog>
+
+    <!-- Palette de commandes (Ctrl + K) -->
+    <dialog class="palette panel" id="palette" aria-label="Palette de commandes">
+        <div class="palette-input-wrap">
+            <span class="palette-prompt" aria-hidden="true">&gt;</span>
+            <input type="text" id="palette-input" class="palette-input" placeholder="Tape une commande : profil, snake, thème…"
+                   role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+        </div>
+        <ul class="palette-list" id="palette-list" role="listbox" aria-label="Commandes"></ul>
+        <p class="palette-help"><kbd>↑</kbd><kbd>↓</kbd> choisir · <kbd>Entrée</kbd> valider · <kbd>Échap</kbd> fermer</p>
     </dialog>
 
     <script src="script.js"></script>
