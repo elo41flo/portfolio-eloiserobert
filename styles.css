@@ -1585,6 +1585,11 @@ body.rainbow .panel {
 }
 
 /* --- 16. BOUTIQUE --- */
+.card-grid.shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    row-gap: 36px; /* place pour les icônes qui dépassent */
+}
+
 .shop-item {
     display: flex;
     flex-direction: column;
