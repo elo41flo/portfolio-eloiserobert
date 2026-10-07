@@ -242,6 +242,10 @@ function renderClearedLevels() {
 }
 
 function showScreen(name, { focus = true } = {}) {
+    // Lien vers une fiche du module E5 (#fiche-…) : on affiche l'écran E5 puis on ouvre la fiche
+    const fiche = name.startsWith('fiche-') ? document.getElementById(name) : null;
+    if (fiche) name = 'e5';
+
     const target = [...screens].find(s => s.dataset.screen === name) ? name : 'map';
 
     screens.forEach(s => { s.hidden = s.dataset.screen !== target; });
@@ -275,7 +279,13 @@ function showScreen(name, { focus = true } = {}) {
         }
     } else {
         try { sessionStorage.setItem('elo-last-level', target); } catch (e) { /* ignore */ }
-        if (focus) stage.focus({ preventScroll: true });
+        if (fiche) {
+            fiche.open = true;
+            fiche.scrollIntoView({ block: 'start' });
+            fiche.querySelector('summary').focus({ preventScroll: true });
+        } else if (focus) {
+            stage.focus({ preventScroll: true });
+        }
     }
 }
 

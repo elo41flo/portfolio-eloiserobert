@@ -63,11 +63,18 @@
             "@type": "EducationalOrganization",
             "name": "CNED — BTS SIO option SLAM"
         },
-        "hasCredential": {
-            "@type": "EducationalOccupationalCredential",
-            "name": "Certification WordPress",
-            "recognizedBy": { "@type": "Organization", "name": "Simplon.co" }
-        },
+        "hasCredential": [
+            {
+                "@type": "EducationalOccupationalCredential",
+                "name": "Certification WordPress",
+                "recognizedBy": { "@type": "Organization", "name": "Simplon.co" }
+            },
+            {
+                "@type": "EducationalOccupationalCredential",
+                "name": "Certification Front-end",
+                "recognizedBy": { "@type": "Organization", "name": "CCI Campus" }
+            }
+        ],
         "sameAs": [
             "https://github.com/elo41flo",
             "https://www.linkedin.com/in/eloise-robert-0b36902a6",
@@ -185,6 +192,7 @@
                         <li><a href="#boutique" class="level" style="--c: #ffb000"><span class="level-num">4-1</span><span class="level-icon">🛒</span><span class="level-name">Services</span><span class="level-sub">La boutique</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#arcade" class="level" style="--c: var(--green)"><span class="level-num">4-2</span><span class="level-icon">👾</span><span class="level-name">Arcade</span><span class="level-sub">Mini-jeu Snake</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#quetes" class="level level-locked" style="--c: #8b5cf6"><span class="level-num">4-3</span><span class="level-icon">🗝️</span><span class="level-name">Prochaines quêtes</span><span class="level-sub">Projets à venir</span><span class="level-star" aria-hidden="true">★</span></a></li>
+                        <li><a href="#e5" class="level level-exam" style="--c: #2de2e6"><span class="level-num">E5</span><span class="level-icon">🎓</span><span class="level-name">BTS SIO · E5</span><span class="level-sub">Épreuve SLAM</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#autres" class="level level-bonus" style="--c: #ff3ea5"><span class="level-num">BONUS</span><span class="level-icon">🍄</span><span class="level-name">Autres</span><span class="level-sub">Quêtes secondaires</span><span class="level-star" aria-hidden="true">★</span></a></li>
                     </ul>
                 </nav>
@@ -250,12 +258,12 @@
                         <li class="timeline-item">
                             <span class="timeline-status">2025 – 2026</span>
                             <strong>Titre professionnel Développeur Web</strong>
-                            <p>La Fabrique du Numérique 41 · Certification WordPress (Simplon.co) obtenue en 2025</p>
+                            <p>La Fabrique du Numérique 41 · Certifications WordPress et Front-end obtenues · Certification Back-end en avril 2027</p>
                         </li>
                         <li class="timeline-item">
                             <span class="timeline-status">2021 – 2023</span>
                             <strong>Bac Pro Métiers de la Relation Client</strong>
-                            <p>CNED</p>
+                            <p>CNED · Diplôme non obtenu</p>
                         </li>
                     </ol>
                 </section>
@@ -415,14 +423,14 @@
                     <article class="panel cartridge" data-tech="laravel php">
                         <div class="cart-cover" style="--a:#ff2d20; --b:#6b0f0a">☕<span class="cart-label">CAF'THÉ</span></div>
                         <header class="quest-head"><h3>Caf'Thé — Dashboard</h3><div class="badges"><span class="badge laravel">Laravel</span></div></header>
-                        <p>Projet pédagogique dans le but de passer la certification Back-end.</p>
+                        <p>Projet pédagogique pour la certification Back-end (passage en avril 2027).</p>
                         <div class="actions"><a href="https://cafthe-dashboard.erobert.dev-campus.fr" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a></div>
                     </article>
 
                     <article class="panel cartridge" data-tech="react css node">
                         <div class="cart-cover" style="--a:#61dafb; --b:#123a4a">🍵<span class="cart-label">CAF'THÉ</span></div>
                         <header class="quest-head"><h3>Caf'Thé — E-shop</h3><div class="badges"><span class="badge react">React</span><span class="badge css">CSS</span><span class="badge node">Node.js</span></div></header>
-                        <p>Projet pédagogique dans le but de passer la certification Front-end.</p>
+                        <p>Projet pédagogique pour la certification Front-end (obtenue).</p>
                         <div class="actions">
                             <a href="https://github.com/elo41flo/cafthe" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code front</a>
                             <a href="https://github.com/elo41flo/cafthe-back" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code back</a>
@@ -594,11 +602,21 @@
                     </div>
                 </article>
 
-                <article class="panel trophy silver">
-                    <span class="trophy-icon">🏅</span>
+                <article class="panel trophy gold">
+                    <span class="trophy-icon">🏆</span>
                     <div>
                         <header class="quest-head"><h3>Certification Front-end</h3><span class="tag" style="--t:#2de2e6">CCI Campus</span></header>
-                        <p>Valide mes compétences en développement front-end.</p>
+                        <p>Obtenue avec la Fabrique du Numérique. Valide mes compétences en développement front-end (projet Caf'Thé en React).</p>
+                        <span class="trophy-date">✔ OBTENUE · RANG OR</span>
+                    </div>
+                </article>
+
+                <article class="panel trophy locked">
+                    <span class="trophy-icon" aria-hidden="true">🔒</span>
+                    <div>
+                        <header class="quest-head"><h3>Certification Back-end</h3><span class="tag" style="--t:#ffd319">En préparation</span></header>
+                        <p>À passer avec la Fabrique du Numérique. Valide mes compétences en développement back-end (projet Caf'Thé Dashboard en Laravel).</p>
+                        <span class="trophy-date">📅 Avril 2027 · TROPHÉE À DÉBLOQUER</span>
                     </div>
                 </article>
 
@@ -707,6 +725,197 @@
                         </p>
                         <p class="screen-intro">Sur mobile : glisse sur l'écran de jeu ou utilise la croix. Atteins 10 points pour débloquer un succès… et ton record s'affiche sur l'écran titre !</p>
                     </div>
+                </div>
+            </section>
+
+            <!-- ============ E5 · BTS SIO (option SLAM) ============ -->
+            <section class="screen" data-screen="e5" aria-labelledby="e5-title" hidden>
+                <div class="screen-head">
+                    <a href="#map" class="back-btn">◀ Retour</a>
+                    <h2 id="e5-title" class="screen-title"><span class="world">E5</span> BTS SIO · option SLAM</h2>
+                </div>
+
+                <div class="dialog-box">
+                    <span class="dialog-name">ÉPREUVE E5</span>
+                    <p><strong>Conception et développement d'applications</strong> — option SLAM (Solutions Logicielles et Applications Métiers). Cette épreuve évalue le bloc de compétences n°2 à partir de réalisations professionnelles. Voici les miennes, reliées aux compétences du référentiel.</p>
+                </div>
+
+                <section class="panel">
+                    <h3 class="panel-title">📊 Tableau de synthèse</h3>
+                    <div class="table-scroll" tabindex="0" role="region" aria-label="Tableau de synthèse, défilable horizontalement">
+                        <table class="synthese">
+                            <caption class="visually-hidden">Réalisations professionnelles et compétences du bloc 2 (option SLAM) qu'elles mobilisent</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Réalisation</th>
+                                    <th scope="col">Contexte</th>
+                                    <th scope="col"><abbr title="Concevoir et développer une solution applicative">C1</abbr> Concevoir & développer</th>
+                                    <th scope="col"><abbr title="Assurer la maintenance corrective ou évolutive">C2</abbr> Maintenance</th>
+                                    <th scope="col"><abbr title="Gérer les données">C3</abbr> Gérer les données</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th scope="row"><a href="#fiche-cafthe-dashboard">Caf'Thé — Dashboard</a></th>
+                                <td>Formation</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td><td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><a href="#fiche-cafthe-eshop">Caf'Thé — E-shop</a></th>
+                                <td>Formation</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td><td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><a href="#fiche-fleurdepau">Fleur de Pau</a></th>
+                                <td>Projet bénévole</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td><td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><a href="#fiche-sante">App santé mentale</a></th>
+                                <td>Projet personnel</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><a href="#fiche-raccourcis">Extension Raccourcis</a></th>
+                                <td>Projet personnel</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><a href="#fiche-plugins">Plugins WordPress</a></th>
+                                <td>Stage</td>
+                                <td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-yes"><span aria-hidden="true">✔</span><span class="visually-hidden">Oui</span></td><td class="cell-no"><span aria-hidden="true">—</span><span class="visually-hidden">Non</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="table-legend">✔ = compétence mobilisée · — = non concernée. Clique sur une réalisation pour ouvrir sa fiche.</p>
+                </section>
+
+                <section class="panel">
+                    <h3 class="panel-title">🧭 Compétences du bloc 2 (SLAM)</h3>
+                    <div class="skill-blocks">
+                        <div class="skill-block">
+                            <h4><span class="skill-code">C1</span> Concevoir et développer une solution applicative</h4>
+                            <ul>
+                                <li>Analyser un besoin exprimé et son contexte juridique</li>
+                                <li>Participer à la conception de l'architecture et modéliser une solution applicative</li>
+                                <li>Exploiter les ressources d'un framework et des composants logiciels</li>
+                                <li>Mettre en œuvre les échanges entre applications (technologies web, API)</li>
+                                <li>Tester, documenter et intégrer les versions d'une solution</li>
+                            </ul>
+                        </div>
+                        <div class="skill-block">
+                            <h4><span class="skill-code">C2</span> Assurer la maintenance corrective ou évolutive</h4>
+                            <ul>
+                                <li>Recueillir et analyser les informations sur une version</li>
+                                <li>Évaluer la qualité d'une solution applicative</li>
+                                <li>Analyser et corriger un dysfonctionnement</li>
+                                <li>Mettre à jour la documentation et tester les éléments modifiés</li>
+                            </ul>
+                        </div>
+                        <div class="skill-block">
+                            <h4><span class="skill-code">C3</span> Gérer les données</h4>
+                            <ul>
+                                <li>Exploiter des données à l'aide d'un langage de requêtes (SQL)</li>
+                                <li>Concevoir ou adapter une base de données (Merise, Looping)</li>
+                                <li>Développer des fonctionnalités au sein d'un SGBD</li>
+                                <li>Administrer et déployer une base de données</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <h3 class="section-sub">📁 Fiches des réalisations</h3>
+                <div class="fiches">
+                    <details class="panel fiche" id="fiche-cafthe-dashboard">
+                        <summary>
+                            <span class="fiche-title">☕ Caf'Thé — Dashboard</span>
+                            <span class="fiche-meta">Formation · certification Back-end (avril 2027)</span>
+                            <span class="badges"><span class="badge laravel">Laravel</span><span class="badge php">PHP</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Disposer d'une interface d'administration pour gérer l'activité de la boutique Caf'Thé.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Application back-office développée avec le framework Laravel, reliée à une base de données.</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative (framework, composants d'accès aux données)</li><li>Gérer les données</li></ul></dd></div>
+                            </dl>
+                            <div class="actions"><a href="https://cafthe-dashboard.erobert.dev-campus.fr" target="_blank" rel="noopener" class="pixel-btn alt">🌐 Voir le site</a></div>
+                        </div>
+                    </details>
+                    <details class="panel fiche" id="fiche-cafthe-eshop">
+                        <summary>
+                            <span class="fiche-title">🍵 Caf'Thé — E-shop</span>
+                            <span class="fiche-meta">Formation · certification Front-end (obtenue)</span>
+                            <span class="badges"><span class="badge react">React</span><span class="badge node">Node.js</span><span class="badge css">CSS</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Proposer une boutique en ligne pour vendre les produits de Caf'Thé.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Front-end en React qui communique avec une API back-end en Node.js.</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative (technologies web, échanges entre applications)</li><li>Gérer les données</li></ul></dd></div>
+                            </dl>
+                            <div class="actions"><a href="https://github.com/elo41flo/cafthe" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code front</a><a href="https://github.com/elo41flo/cafthe-back" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code back</a></div>
+                        </div>
+                    </details>
+                    <details class="panel fiche" id="fiche-fleurdepau">
+                        <summary>
+                            <span class="fiche-title">🌸 Fleur de Pau</span>
+                            <span class="fiche-meta">Projet bénévole · 2025</span>
+                            <span class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Permettre à une boutique artisanale de vendre en ligne et de gérer elle-même son catalogue.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Site e-commerce avec interface d'administration et système de paiement sécurisé.</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative</li><li>Gérer les données</li></ul></dd></div>
+                            </dl>
+                            <div class="actions"><a href="https://www.fleurdepau.fr" target="_blank" rel="noopener" class="pixel-btn alt">🌐 Voir le site</a><a href="https://github.com/elo41flo/FleurdePau" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a></div>
+                        </div>
+                    </details>
+                    <details class="panel fiche" id="fiche-sante">
+                        <summary>
+                            <span class="fiche-title">💊 App santé mentale</span>
+                            <span class="fiche-meta">Projet personnel</span>
+                            <span class="badges"><span class="badge react">React</span><span class="badge json">JSON</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Aider une personne à suivre ses médicaments, gérer les urgences et préparer ses rendez-vous médicaux.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Application web en React : suivi des médicaments, gestion des urgences et comptes rendus de symptômes pour le médecin.</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative</li></ul></dd></div>
+                            </dl>
+                            <div class="actions"><a href="https://app-sante-mentale.vercel.app/" target="_blank" rel="noopener" class="pixel-btn alt">🌐 Voir le site</a><a href="https://github.com/elo41flo/app-sante-mentale" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a></div>
+                        </div>
+                    </details>
+                    <details class="panel fiche" id="fiche-raccourcis">
+                        <summary>
+                            <span class="fiche-title">⌨️ Extension Raccourcis</span>
+                            <span class="fiche-meta">Projet personnel</span>
+                            <span class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge json">JSON</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Retrouver rapidement les raccourcis clavier de l'ordinateur sans quitter le navigateur.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Extension de navigateur (manifeste JSON, interface HTML/CSS, logique JavaScript).</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative</li></ul></dd></div>
+                            </dl>
+                            <div class="actions"><a href="https://github.com/elo41flo/extensions_navigateurs/tree/main/Raccourcis" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code & installation</a></div>
+                        </div>
+                    </details>
+                    <details class="panel fiche" id="fiche-plugins">
+                        <summary>
+                            <span class="fiche-title">🧩 Plugins WordPress</span>
+                            <span class="fiche-meta">Stage · 2026</span>
+                            <span class="badges"><span class="badge php">PHP</span><span class="badge wp">WordPress</span></span>
+                        </summary>
+                        <div class="fiche-body">
+                            <dl class="fiche-dl">
+                                <div><dt>Besoin</dt><dd>Ajouter des fonctionnalités sur mesure à des sites WordPress.</dd></div>
+                                <div><dt>Réalisation</dt><dd>Développement de sites WordPress et création de plugins en PHP. Code propriété de l'entreprise : pas de lien public.</dd></div>
+                                <div><dt>Compétences mobilisées</dt><dd><ul class="fiche-comps"><li>Concevoir et développer une solution applicative (composants logiciels)</li><li>Assurer la maintenance corrective ou évolutive (évolution de sites existants)</li></ul></dd></div>
+                            </dl>
+                        </div>
+                    </details>
                 </div>
             </section>
 
@@ -864,6 +1073,7 @@
                         <li><a href="#boutique">4-1 · Services</a></li>
                         <li><a href="#arcade">4-2 · Arcade (mini-jeu)</a></li>
                         <li><a href="#quetes">4-3 · Prochaines quêtes (projets à venir)</a></li>
+                        <li><a href="#e5">E5 · BTS SIO option SLAM (tableau de synthèse)</a></li>
                         <li><a href="#autres">Bonus · Autres</a></li>
                         <li><a href="#trophees">Succès</a></li>
                         <li><a href="#mentions">Mentions légales</a></li>
