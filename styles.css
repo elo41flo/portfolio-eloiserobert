@@ -461,6 +461,57 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 .bar-fill.mp { background: repeating-linear-gradient(90deg, #4ea8ff 0 6px, #2f7bd0 6px 8px); }
 .bar-fill.coffee { background: repeating-linear-gradient(90deg, #c08552 0 6px, #8b5a2b 6px 8px); }
 
+/* Bandeau "recherche de stage" */
+.stage-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 24px;
+    padding: 12px 20px;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--panel-2) 0 14px,
+        var(--panel) 14px 28px
+    );
+    border-bottom: var(--px) solid var(--yellow);
+    text-align: center;
+}
+
+.stage-banner p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    color: var(--heading);
+}
+
+.stage-banner strong {
+    font-family: var(--font-pixel);
+    font-size: 0.65rem;
+    color: var(--yellow);
+}
+
+:root[data-font] .stage-banner strong {
+    font-size: 1.1rem;
+}
+
+.stage-banner-icon {
+    font-size: 1.6rem;
+    animation: bob 1.2s steps(2) infinite;
+}
+
+.stage-banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.stage-banner .pixel-btn {
+    padding: 8px 12px;
+}
+
 /* --- 5. SCÈNE & ÉCRANS --- */
 .stage {
     flex: 1;
