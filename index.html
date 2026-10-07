@@ -12,6 +12,14 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0d0b1e">
 
+    <!-- Applique le thème sauvegardé avant l'affichage (évite un flash de couleurs) -->
+    <script>
+        try {
+            var savedTheme = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}').theme;
+            if (savedTheme && savedTheme !== 'neon') document.documentElement.dataset.theme = savedTheme;
+        } catch (e) {}
+    </script>
+
     <!-- URL canonique (à adapter si le site change de domaine) -->
     <link rel="canonical" href="https://portfolio-er.erobert.dev-campus.fr/">
 
@@ -37,8 +45,15 @@
         "url": "https://portfolio-er.erobert.dev-campus.fr/",
         "email": "mailto:elo.robert41@gmail.com",
         "jobTitle": "Développeuse web freelance",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Mer",
+            "postalCode": "41500",
+            "addressRegion": "Loir-et-Cher",
+            "addressCountry": "FR"
+        },
         "description": "Développeuse web indépendante : sites vitrines modernes, rapides, éco-conçus et adaptés au mobile.",
-        "knowsAbout": ["HTML", "CSS", "JavaScript", "React", "Node.js", "PHP", "Laravel", "WordPress", "Figma", "SEO", "UI/UX", "Éco-conception"],
+        "knowsAbout": ["HTML", "CSS", "JavaScript", "React", "Node.js", "PHP", "SQL", "Laravel", "WordPress", "Figma", "SEO", "UI/UX", "Éco-conception"],
         "affiliation": {
             "@type": "EducationalOrganization",
             "name": "CNED — BTS SIO"
@@ -96,7 +111,7 @@
             <span class="blink">▶ PRESS START</span>
         </button>
         <p class="title-hint">Appuie sur <kbd>Entrée</kbd> ou clique pour jouer</p>
-        <p class="hi-score">HI-SCORE <span>004200</span> · 1 PLAYER</p>
+        <p class="hi-score">HI-SCORE <span id="title-hiscore">000000</span> · 1 PLAYER</p>
     </section>
 
     <!-- ===================== JEU ===================== -->
@@ -116,6 +131,7 @@
             </div>
             <div class="hud-right">
                 <a href="#trophees" class="hud-btn" aria-label="Succès débloqués">🏆 <span id="ach-count">0</span>/<span id="ach-total">0</span></a>
+                <button type="button" class="hud-btn" id="theme-btn" aria-label="Changer de thème de couleurs">🎨 <span id="theme-name">Néon</span></button>
                 <button type="button" class="hud-btn" id="sound-btn" aria-pressed="false" aria-label="Activer le son">🔇</button>
                 <span class="hud-clock" id="clock">00:00</span>
             </div>
@@ -144,6 +160,8 @@
                         <li><a href="#certifications" class="level" style="--c: var(--yellow)"><span class="level-num">3-1</span><span class="level-icon">🎖️</span><span class="level-name">Certifications</span><span class="level-sub">Salle des badges</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#veille" class="level" style="--c: #ff7a3d"><span class="level-num">3-2</span><span class="level-icon">📡</span><span class="level-name">Veille techno</span><span class="level-sub">La taverne</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#contact" class="level" style="--c: var(--cyan)"><span class="level-num">3-3</span><span class="level-icon">💾</span><span class="level-name">Contact</span><span class="level-sub">Point de sauvegarde</span><span class="level-star" aria-hidden="true">★</span></a></li>
+                        <li><a href="#boutique" class="level" style="--c: #ffb000"><span class="level-num">4-1</span><span class="level-icon">🛒</span><span class="level-name">Services</span><span class="level-sub">La boutique</span><span class="level-star" aria-hidden="true">★</span></a></li>
+                        <li><a href="#arcade" class="level" style="--c: var(--green)"><span class="level-num">4-2</span><span class="level-icon">👾</span><span class="level-name">Arcade</span><span class="level-sub">Mini-jeu Snake</span><span class="level-star" aria-hidden="true">★</span></a></li>
                         <li><a href="#autres" class="level level-bonus" style="--c: #ff3ea5"><span class="level-num">BONUS</span><span class="level-icon">🍄</span><span class="level-name">Autres</span><span class="level-sub">Quêtes secondaires</span><span class="level-star" aria-hidden="true">★</span></a></li>
                     </ul>
                 </nav>
@@ -168,12 +186,16 @@
                         <h3 class="char-name">Eloise Robert</h3>
                         <p class="char-class">Classe : <strong>Développeuse Web</strong></p>
                         <p class="char-class">Guilde : <strong>BTS SIO · CNED</strong></p>
+                        <p class="char-class">Base : <strong>Mer (41) · Loir-et-Cher</strong></p>
+                        <p class="char-class">Statut : <strong>Micro-entrepreneuse</strong></p>
 
                         <dl class="stats">
                             <div class="stat"><dt>PV</dt><dd><div class="bar"><div class="bar-fill hp" style="--v: 100%"></div></div><span>100</span></dd></div>
                             <div class="stat"><dt>PM</dt><dd><div class="bar"><div class="bar-fill mp" style="--v: 85%"></div></div><span>85</span></dd></div>
                             <div class="stat"><dt>CAFÉ</dt><dd><div class="bar"><div class="bar-fill coffee" style="--v: 60%"></div></div><span>60</span></dd></div>
                         </dl>
+
+                        <a href="cv-eloise-robert.pdf" class="pixel-btn big cv-btn" download>📜 Télécharger mon CV</a>
                     </article>
 
                     <div class="profile-main">
@@ -196,18 +218,53 @@
 
                 <section class="panel">
                     <h3 class="panel-title">🗺️ Journal de quêtes — Parcours</h3>
-                    <ol class="timeline">
-                        <li class="timeline-item current">
-                            <span class="timeline-status">EN COURS</span>
-                            <strong>BTS SIO — Services Informatiques aux Organisations</strong>
-                            <p>CNED · formation à distance</p>
-                        </li>
-                        <li class="timeline-item">
-                            <span class="timeline-status">TERMINÉE</span>
-                            <strong>Formation développeuse web & mobile</strong>
-                            <p>La Fabrique du Numérique du 41, Blois · Certification WordPress (Simplon.co) obtenue en 2025</p>
-                        </li>
-                    </ol>
+                    <div class="journal">
+                        <div>
+                            <h4 class="journal-sub">🎓 Formation</h4>
+                            <ol class="timeline">
+                                <li class="timeline-item current">
+                                    <span class="timeline-status">EN COURS</span>
+                                    <strong>BTS SIO — Services Informatiques aux Organisations</strong>
+                                    <p>CNED · formation à distance</p>
+                                </li>
+                                <li class="timeline-item">
+                                    <span class="timeline-status">2025 – 2027</span>
+                                    <strong>Titre professionnel Développeur Web</strong>
+                                    <p>La Fabrique du Numérique 41 · Certification WordPress (Simplon.co) obtenue en 2025</p>
+                                </li>
+                                <li class="timeline-item">
+                                    <span class="timeline-status">2021 – 2023</span>
+                                    <strong>Bac Pro Métiers de la Relation Client</strong>
+                                    <p>CNED</p>
+                                </li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h4 class="journal-sub">⚔️ Expériences</h4>
+                            <ol class="timeline">
+                                <li class="timeline-item current">
+                                    <span class="timeline-status">2026</span>
+                                    <strong>Stagiaire développeuse web</strong>
+                                    <p>Blois</p>
+                                </li>
+                                <li class="timeline-item">
+                                    <span class="timeline-status">2025</span>
+                                    <strong>Équipière</strong>
+                                    <p>McDonald's · Tavers</p>
+                                </li>
+                                <li class="timeline-item">
+                                    <span class="timeline-status">2025</span>
+                                    <strong>Manutentionnaire</strong>
+                                    <p>Mer</p>
+                                </li>
+                                <li class="timeline-item">
+                                    <span class="timeline-status">2025</span>
+                                    <strong>Employée polyvalente</strong>
+                                    <p>Messas</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
                 </section>
 
                 <section class="panel">
@@ -219,6 +276,7 @@
                         <li class="item" data-lvl="3"><span class="item-icon">⚛️</span><span class="item-name">React.js</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🟢</span><span class="item-name">Node.js</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🐘</span><span class="item-name">PHP</span></li>
+                        <li class="item" data-lvl="3"><span class="item-icon">🗄️</span><span class="item-name">SQL</span></li>
                         <li class="item" data-lvl="3"><span class="item-icon">🗂️</span><span class="item-name">Merise</span></li>
                         <li class="item" data-lvl="4"><span class="item-icon">✏️</span><span class="item-name">Figma</span></li>
                         <li class="item" data-lvl="4"><span class="item-icon">🔍</span><span class="item-name">SEO</span></li>
@@ -230,11 +288,23 @@
                 </section>
 
                 <section class="panel">
+                    <h3 class="panel-title">🛡️ Équipement — Outils</h3>
+                    <div class="gear">
+                        <div class="gear-slot"><h4>Conception & BDD</h4><ul class="chips"><li>Merise</li><li>Looping</li><li>Access</li></ul></div>
+                        <div class="gear-slot"><h4>Design & média</h4><ul class="chips"><li>Figma</li><li>Canva</li><li>XnConvert</li></ul></div>
+                        <div class="gear-slot"><h4>Développement</h4><ul class="chips"><li>VS Code</li><li>Git / GitHub</li><li>XAMPP</li></ul></div>
+                    </div>
+                </section>
+
+                <section class="panel">
                     <h3 class="panel-title">✨ Talents passifs — Soft skills</h3>
                     <ul class="perks">
-                        <li class="perk"><span>✨</span><div><strong>Patiente</strong><p>+10 en sérénité face aux bugs.</p></div></li>
-                        <li class="perk"><span>⏰</span><div><strong>Ponctuelle</strong><p>Les deadlines ne sont jamais ratées.</p></div></li>
-                        <li class="perk"><span>🔥</span><div><strong>Passionnée</strong><p>Bonus de motivation permanent.</p></div></li>
+                        <li class="perk"><span>🧭</span><div><strong>Autonomie</strong><p>Avance seule sur sa quête, sans carte.</p></div></li>
+                        <li class="perk"><span>🤝</span><div><strong>Travail d'équipe</strong><p>Bonus de groupe en multijoueur.</p></div></li>
+                        <li class="perk"><span>⏰</span><div><strong>Ponctualité</strong><p>Les deadlines ne sont jamais ratées.</p></div></li>
+                        <li class="perk"><span>🔎</span><div><strong>Curiosité</strong><p>Explore chaque recoin de la map.</p></div></li>
+                        <li class="perk"><span>✨</span><div><strong>Patience</strong><p>+10 en sérénité face aux bugs.</p></div></li>
+                        <li class="perk"><span>🔥</span><div><strong>Passion</strong><p>Bonus de motivation permanent.</p></div></li>
                     </ul>
                 </section>
             </section>
@@ -343,7 +413,7 @@
                     <article class="panel cartridge" data-tech="html css js node">
                         <div class="cart-cover" style="--a:#ff8fc7; --b:#4a1030">🌸<span class="cart-label">FLEUR DE PAU</span></div>
                         <header class="quest-head"><h3>Fleur de Pau</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span></div></header>
-                        <p>Site e-commerce réalisé pour une micro-entreprise, dans le but de m'entraîner.</p>
+                        <p>Projet bénévole (2025) : boutique artisanale avec interface d'administration et système de paiement sécurisé.</p>
                         <div class="actions">
                             <a href="https://www.fleurdepau.fr" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
                             <a href="https://github.com/elo41flo/FleurdePau" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
@@ -353,7 +423,7 @@
                     <article class="panel cartridge" data-tech="html css js">
                         <div class="cart-cover" style="--a:#e0e0e0; --b:#222">🖋️<span class="cart-label">ENCRE & ART</span></div>
                         <header class="quest-head"><h3>Encre & Art</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span></div></header>
-                        <p>Devoir réalisé avant la rentrée de la formation pour ne pas perdre la main.</p>
+                        <p>Site événementiel fictif (salon de tatouage, 2025) : site complet avec interactions JavaScript et intégration d'une carte Google Maps.</p>
                         <div class="actions">
                             <a href="https://elo41flo.github.io/encre-art/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
                             <a href="https://github.com/elo41flo/encre-art" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
@@ -363,7 +433,7 @@
                     <article class="panel cartridge" data-tech="html css js">
                         <div class="cart-cover" style="--a:#ffb000; --b:#3d2600">⚡<span class="cart-label">ELEC'RÉNOV</span></div>
                         <header class="quest-head"><h3>Elec'Rénov</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span></div></header>
-                        <p>Devoir réalisé avant la rentrée de la formation pour ne pas perdre la main.</p>
+                        <p>Site vitrine fictif (2025) : présence en ligne d'un électricien local, axée sur la lisibilité et la prise de contact.</p>
                         <div class="actions">
                             <a href="https://elo41flo.github.io/elo41flo.github.io-elecrenov/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
                             <a href="https://github.com/elo41flo/elo41flo.github.io-elecrenov" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
@@ -488,6 +558,14 @@
                     </div>
                 </article>
 
+                <article class="panel trophy silver">
+                    <span class="trophy-icon">🏅</span>
+                    <div>
+                        <header class="quest-head"><h3>Certification Front-end</h3><span class="tag" style="--t:#2de2e6">CCI Campus</span></header>
+                        <p>Valide mes compétences en développement front-end.</p>
+                    </div>
+                </article>
+
                 <h3 class="section-sub">Auto-formation · SoloLearn</h3>
                 <div class="card-grid">
                     <article class="panel trophy silver"><span class="trophy-icon">🥈</span><div><h3>JavaScript</h3><span class="trophy-date">📅 2025</span></div></article>
@@ -505,6 +583,88 @@
                 <p class="screen-intro">Explore le portfolio pour tout débloquer. Ta progression est sauvegardée sur cet appareil.</p>
                 <ul class="achievements" id="achievements-list"></ul>
                 <button type="button" class="pixel-btn alt" id="reset-btn">↺ Nouvelle partie</button>
+            </section>
+
+            <!-- ============ 4-1 BOUTIQUE (services) ============ -->
+            <section class="screen" data-screen="boutique" aria-labelledby="shop-title" hidden>
+                <div class="screen-head">
+                    <a href="#map" class="back-btn">◀ Retour</a>
+                    <h2 id="shop-title" class="screen-title"><span class="world">4-1</span> La boutique</h2>
+                </div>
+                <div class="dialog-box">
+                    <span class="dialog-name">MARCHANDE</span>
+                    <p>Bienvenue dans ma boutique ! Micro-entrepreneuse, je crée des sites pour les commerçants, artisans et entreprises, près de Blois ou à distance. Chaque projet est unique : le prix se fixe ensemble, sur devis gratuit.</p>
+                </div>
+
+                <div class="card-grid">
+                    <article class="panel shop-item">
+                        <span class="shop-icon">🏠</span>
+                        <h3>Site vitrine</h3>
+                        <p>Présentez votre activité avec un site moderne, rapide, adapté au mobile et bien référencé.</p>
+                        <ul class="shop-perks"><li>Design sur mesure (maquette Figma)</li><li>Responsive & éco-conçu</li><li>Formulaire de contact</li><li>SEO de base</li></ul>
+                        <span class="shop-price">💰 Sur devis</span>
+                    </article>
+                    <article class="panel shop-item">
+                        <span class="shop-icon">🏰</span>
+                        <h3>Site WordPress</h3>
+                        <p>Un site que vous modifiez vous-même facilement : actualités, pages, photos.</p>
+                        <ul class="shop-perks"><li>Thème personnalisé</li><li>Prise en main incluse</li><li>Contenus autonomes</li><li>Certifiée WordPress</li></ul>
+                        <span class="shop-price">💰 Sur devis</span>
+                    </article>
+                    <article class="panel shop-item">
+                        <span class="shop-icon">🛠️</span>
+                        <h3>Refonte & optimisation</h3>
+                        <p>Votre site est lent, daté ou mal référencé ? On lui redonne des points de vie.</p>
+                        <ul class="shop-perks"><li>Audit Lighthouse & EcoIndex</li><li>Amélioration du SEO</li><li>Accessibilité (RGAA)</li><li>Optimisation des images</li></ul>
+                        <span class="shop-price">💰 Sur devis</span>
+                    </article>
+                </div>
+
+                <div class="actions center">
+                    <a href="#contact" class="pixel-btn">📨 Demander un devis gratuit</a>
+                </div>
+            </section>
+
+            <!-- ============ 4-2 ARCADE (mini-jeu Snake) ============ -->
+            <section class="screen" data-screen="arcade" aria-labelledby="arcade-title" hidden>
+                <div class="screen-head">
+                    <a href="#map" class="back-btn">◀ Retour</a>
+                    <h2 id="arcade-title" class="screen-title"><span class="world">4-2</span> Salle d'arcade</h2>
+                </div>
+
+                <div class="arcade">
+                    <div class="arcade-cabinet panel">
+                        <div class="arcade-scores">
+                            <span>SCORE <strong id="snake-score">0</strong></span>
+                            <span>RECORD <strong id="snake-best">0</strong></span>
+                        </div>
+                        <div class="arcade-screen">
+                            <canvas id="snake" width="400" height="400" role="img" aria-label="Jeu Snake : mange les bugs pour grandir">Ton navigateur ne supporte pas le jeu.</canvas>
+                            <div class="arcade-overlay" id="snake-overlay">
+                                <p class="arcade-msg" id="snake-msg">SNAKE.EXE</p>
+                                <button type="button" class="pixel-btn" id="snake-start">▶ Jouer</button>
+                            </div>
+                        </div>
+                        <div class="dpad" role="group" aria-label="Croix directionnelle">
+                            <button type="button" class="dpad-btn up" data-dir="up" aria-label="Haut">▲</button>
+                            <button type="button" class="dpad-btn left" data-dir="left" aria-label="Gauche">◀</button>
+                            <button type="button" class="dpad-btn right" data-dir="right" aria-label="Droite">▶</button>
+                            <button type="button" class="dpad-btn down" data-dir="down" aria-label="Bas">▼</button>
+                        </div>
+                    </div>
+
+                    <div class="arcade-rules">
+                        <div class="dialog-box">
+                            <span class="dialog-name">RÈGLES</span>
+                            <p>Guide le serpent de code 🐍 et mange les bugs 🐛 pour grandir. Ne te mords pas la queue et évite les murs !</p>
+                        </div>
+                        <p class="controls-hint">
+                            <kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd> ou <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> diriger ·
+                            <kbd>Espace</kbd> pause
+                        </p>
+                        <p class="screen-intro">Sur mobile : glisse sur l'écran de jeu ou utilise la croix. Atteins 10 points pour débloquer un succès… et ton record s'affiche sur l'écran titre !</p>
+                    </div>
+                </div>
             </section>
 
             <!-- ============ 3-2 VEILLE ============ -->
@@ -619,6 +779,8 @@
                         <li><a href="#certifications">3-1 · Certifications</a></li>
                         <li><a href="#veille">3-2 · Veille techno</a></li>
                         <li><a href="#contact">3-3 · Contact</a></li>
+                        <li><a href="#boutique">4-1 · Services</a></li>
+                        <li><a href="#arcade">4-2 · Arcade (mini-jeu)</a></li>
                         <li><a href="#autres">Bonus · Autres</a></li>
                         <li><a href="#trophees">Succès</a></li>
                         <li><a href="#mentions">Mentions légales</a></li>

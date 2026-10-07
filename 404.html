@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Over — Page introuvable | Eloise Robert</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#0d0b1e">
+
+    <!-- Même thème de couleurs que sur le portfolio -->
+    <script>
+        try {
+            var savedTheme = JSON.parse(localStorage.getItem('elo-portfolio-save') || '{}').theme;
+            if (savedTheme && savedTheme !== 'neon') document.documentElement.dataset.theme = savedTheme;
+        } catch (e) {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+    <!-- Chemins absolus : la 404 peut s'afficher à n'importe quelle adresse -->
+    <link rel="stylesheet" href="/reset.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>">
+</head>
+<body>
+    <div class="crt" aria-hidden="true"></div>
+
+    <main class="gameover">
+        <p class="gameover-code">ERREUR 404</p>
+        <h1 class="gameover-title">GAME OVER</h1>
+
+        <div class="dialog-box">
+            <span class="dialog-name">SYSTÈME</span>
+            <p>Oups ! Ce niveau n'existe pas… Tu es tombé·e dans un trou de la map. La page a peut-être été déplacée, ou l'adresse contient une faute de frappe.</p>
+        </div>
+
+        <p class="continue" aria-live="polite">CONTINUE ? <strong id="countdown">9</strong></p>
+
+        <div class="gameover-actions">
+            <a href="/" class="pixel-btn" id="continue-btn">▶ Continuer (accueil)</a>
+            <a href="/#arcade" class="pixel-btn alt">👾 Jouer au Snake</a>
+            <a href="/#contact" class="pixel-btn alt">💾 Signaler un bug</a>
+        </div>
+    </main>
+
+    <script>
+        // Compte à rebours façon borne d'arcade : à 0, retour automatique à l'accueil
+        var count = 9;
+        var countdownEl = document.getElementById('countdown');
+        var timer = setInterval(function () {
+            count--;
+            countdownEl.textContent = count;
+            if (count <= 0) {
+                clearInterval(timer);
+                window.location.href = '/';
+            }
+        }, 1000);
+
+        // Si on interagit avec la page, on arrête le compte à rebours
+        ['keydown', 'pointerdown'].forEach(function (evt) {
+            document.addEventListener(evt, function (e) {
+                if (e.key === 'Enter') return; // Entrée sur un bouton = navigation normale
+                clearInterval(timer);
+                countdownEl.textContent = '∞';
+            }, { once: true });
+        });
+    </script>
+</body>
+</html>

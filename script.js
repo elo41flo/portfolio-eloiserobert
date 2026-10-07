@@ -13,7 +13,7 @@ function loadSave() {
     return {};
 }
 
-const save = Object.assign({ xp: 0, visited: [], achievements: [], sound: false }, loadSave());
+const save = Object.assign({ xp: 0, visited: [], achievements: [], sound: false, theme: 'neon', snakeBest: 0 }, loadSave());
 
 function persist() {
     try {
@@ -133,7 +133,9 @@ const ACHIEVEMENTS = [
     { id: 'trophy', icon: '🎖️', name: 'Chasseur·se de badges', desc: 'Visiter la salle des badges.' },
     { id: 'bonus', icon: '🍄', name: 'Niveau caché', desc: 'Trouver le niveau bonus.' },
     { id: 'contact', icon: '💾', name: 'Partie sauvegardée', desc: 'Envoyer un message.' },
-    { id: 'all', icon: '⭐', name: '100 % complété', desc: 'Visiter les 10 niveaux.' },
+    { id: 'all', icon: '⭐', name: '100 % complété', desc: 'Visiter tous les niveaux de la carte.' },
+    { id: 'theme', icon: '🎨', name: 'Styliste', desc: 'Changer le thème de couleurs.' },
+    { id: 'snake', icon: '🐍', name: 'Chasseur·se de bugs', desc: 'Atteindre 10 points au Snake.' },
     { id: 'night', icon: '🦉', name: 'Oiseau de nuit', desc: 'Jouer entre 22 h et 6 h.' },
     { id: 'konami', icon: '🌈', name: 'Code secret', desc: '↑ ↑ ↓ ↓ ← → ← → B A' }
 ];
@@ -229,6 +231,9 @@ function showScreen(name, { focus = true } = {}) {
 
     screens.forEach(s => { s.hidden = s.dataset.screen !== target; });
     window.scrollTo(0, 0);
+
+    // On met le Snake en pause quand on quitte la salle d'arcade
+    if (target !== 'arcade') pauseSnake();
 
     // Première visite d'un niveau = XP
     if (LEVELS.includes(target) && !save.visited.includes(target)) {
@@ -479,7 +484,284 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     sfx.back();
 });
 
+/* --- 16. THÈMES DE COULEURS --- */
+const THEMES = [
+    { id: 'neon', name: 'Néon' },
+    { id: 'gameboy', name: 'Game Boy' },
+    { id: 'console', name: 'Console' },
+    { id: 'lave', name: 'Lave' }
+];
+const themeBtn = document.getElementById('theme-btn');
+const themeName = document.getElementById('theme-name');
+
+function applyTheme(id) {
+    const theme = THEMES.find(t => t.id === id) || THEMES[0];
+    if (theme.id === 'neon') {
+        delete document.documentElement.dataset.theme;
+    } else {
+        document.documentElement.dataset.theme = theme.id;
+    }
+    themeName.textContent = theme.name;
+    themeBtn.setAttribute('aria-label', `Thème : ${theme.name}. Changer de thème`);
+
+    // Couleur de la barre du navigateur sur mobile
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', bg);
+
+    drawSnake(); // le jeu reprend les couleurs du thème
+}
+
+themeBtn.addEventListener('click', () => {
+    const index = THEMES.findIndex(t => t.id === save.theme);
+    save.theme = THEMES[(index + 1) % THEMES.length].id;
+    persist();
+    applyTheme(save.theme);
+    sfx.select();
+    unlock('theme');
+});
+
+/* --- 17. MINI-JEU SNAKE --- */
+const canvas = document.getElementById('snake');
+const ctx = canvas.getContext('2d');
+const snakeOverlay = document.getElementById('snake-overlay');
+const snakeMsg = document.getElementById('snake-msg');
+const snakeStartBtn = document.getElementById('snake-start');
+const scoreEl = document.getElementById('snake-score');
+const bestEl = document.getElementById('snake-best');
+const titleHiscore = document.getElementById('title-hiscore');
+
+const CELLS = 20;                       // grille de 20 x 20
+const CELL = canvas.width / CELLS;      // taille d'une case en pixels
+const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
+
+let snake = [];
+let food = null;
+let dir = 'right';
+let dirQueue = [];
+let score = 0;
+let snakeTimer = null;
+let snakeState = 'idle'; // idle | running | paused | over
+
+function renderBest() {
+    bestEl.textContent = save.snakeBest;
+    titleHiscore.textContent = String(save.snakeBest * 100).padStart(6, '0');
+}
+
+function placeFood() {
+    do {
+        food = { x: Math.floor(Math.random() * CELLS), y: Math.floor(Math.random() * CELLS) };
+    } while (snake.some(s => s.x === food.x && s.y === food.y));
+}
+
+function resetSnake() {
+    snake = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
+    dir = 'right';
+    dirQueue = [];
+    score = 0;
+    scoreEl.textContent = 0;
+    placeFood();
+}
+
+function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function drawSnake() {
+    const colors = {
+        bg: cssVar('--deep'),
+        grid: cssVar('--panel'),
+        body: cssVar('--green'),
+        head: cssVar('--yellow'),
+        bug: cssVar('--pink')
+    };
+
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Petits points de grille
+    ctx.fillStyle = colors.grid;
+    for (let x = 0; x < CELLS; x++) {
+        for (let y = 0; y < CELLS; y++) {
+            ctx.fillRect(x * CELL + CELL / 2 - 1, y * CELL + CELL / 2 - 1, 2, 2);
+        }
+    }
+
+    // Le bug (nourriture) en pixel art : corps + pattes
+    if (food) {
+        const fx = food.x * CELL;
+        const fy = food.y * CELL;
+        ctx.fillStyle = colors.bug;
+        ctx.fillRect(fx + 5, fy + 4, 10, 12);
+        ctx.fillRect(fx + 2, fy + 6, 3, 2);
+        ctx.fillRect(fx + 15, fy + 6, 3, 2);
+        ctx.fillRect(fx + 2, fy + 12, 3, 2);
+        ctx.fillRect(fx + 15, fy + 12, 3, 2);
+        ctx.fillRect(fx + 7, fy + 1, 2, 3);
+        ctx.fillRect(fx + 11, fy + 1, 2, 3);
+    }
+
+    // Le serpent
+    snake.forEach((part, i) => {
+        ctx.fillStyle = i === 0 ? colors.head : colors.body;
+        ctx.fillRect(part.x * CELL + 1, part.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+
+    // Les yeux
+    if (snake.length) {
+        const head = snake[0];
+        const [dx, dy] = DIRS[dir];
+        // Centre des yeux : décalé vers l'avant, puis écarté de chaque côté
+        const cx = head.x * CELL + CELL / 2 + dx * 4;
+        const cy = head.y * CELL + CELL / 2 + dy * 4;
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(cx - dy * 4 - 1, cy + dx * 4 - 1, 3, 3);
+        ctx.fillRect(cx + dy * 4 - 1, cy - dx * 4 - 1, 3, 3);
+    }
+}
+
+function setDirection(newDir) {
+    if (snakeState !== 'running') return;
+    const last = dirQueue.length ? dirQueue[dirQueue.length - 1] : dir;
+    if (newDir !== last && newDir !== OPPOSITE[last] && dirQueue.length < 3) {
+        dirQueue.push(newDir);
+    }
+}
+
+function tick() {
+    if (dirQueue.length) dir = dirQueue.shift();
+    const [dx, dy] = DIRS[dir];
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+    const hitWall = head.x < 0 || head.y < 0 || head.x >= CELLS || head.y >= CELLS;
+    const hitSelf = snake.slice(0, -1).some(s => s.x === head.x && s.y === head.y);
+    if (hitWall || hitSelf) {
+        gameOver();
+        return;
+    }
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreEl.textContent = score;
+        beep(880, 0.05);
+        beep(1320, 0.07, 'square', 0.05);
+        if (score === 10) unlock('snake');
+        placeFood();
+        // Ça accélère un peu tous les 5 bugs
+        if (score % 5 === 0) startLoop();
+    } else {
+        snake.pop();
+    }
+
+    drawSnake();
+}
+
+function startLoop() {
+    clearInterval(snakeTimer);
+    const speed = Math.max(60, 140 - Math.floor(score / 5) * 12);
+    snakeTimer = setInterval(tick, speed);
+}
+
+function showOverlay(message, button) {
+    snakeMsg.innerHTML = message;
+    snakeStartBtn.textContent = button;
+    snakeOverlay.hidden = false;
+}
+
+function startSnake() {
+    if (snakeState === 'running') return;
+    if (snakeState !== 'paused') resetSnake();
+    snakeState = 'running';
+    snakeOverlay.hidden = true;
+    drawSnake();
+    startLoop();
+    sfx.select();
+    canvas.focus({ preventScroll: true });
+}
+
+function pauseSnake() {
+    if (snakeState !== 'running') return;
+    clearInterval(snakeTimer);
+    snakeState = 'paused';
+    showOverlay('PAUSE', '▶ Reprendre');
+}
+
+function gameOver() {
+    clearInterval(snakeTimer);
+    snakeState = 'over';
+    sfx.back();
+
+    let message = `GAME OVER<br>SCORE : ${score}`;
+    if (score > save.snakeBest) {
+        save.snakeBest = score;
+        persist();
+        renderBest();
+        message += '<br>★ NOUVEAU RECORD ★';
+    }
+    showOverlay(message, '↺ Rejouer');
+}
+
+snakeStartBtn.addEventListener('click', startSnake);
+
+// Clavier : flèches / ZQSD / WASD, espace pour la pause
+const KEY_DIRS = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    z: 'up', w: 'up', s: 'down', q: 'left', a: 'left', d: 'right'
+};
+
+document.addEventListener('keydown', (e) => {
+    const onArcade = !document.querySelector('[data-screen="arcade"]').hidden;
+    if (!onArcade || ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+    if (key === ' ' && (snakeState === 'running' || snakeState === 'paused')) {
+        e.preventDefault();
+        snakeState === 'running' ? pauseSnake() : startSnake();
+        return;
+    }
+
+    if (KEY_DIRS[key] && snakeState === 'running') {
+        e.preventDefault(); // évite que la page défile
+        setDirection(KEY_DIRS[key]);
+    }
+});
+
+// Croix directionnelle (mobile)
+document.querySelectorAll('.dpad-btn').forEach(btn => {
+    btn.addEventListener('click', () => setDirection(btn.dataset.dir));
+});
+
+// Glisser le doigt sur l'écran de jeu
+let touchStart = null;
+const arcadeScreen = document.querySelector('.arcade-screen');
+
+arcadeScreen.addEventListener('touchstart', (e) => {
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+
+arcadeScreen.addEventListener('touchend', (e) => {
+    if (!touchStart) return;
+    const dx = e.changedTouches[0].clientX - touchStart.x;
+    const dy = e.changedTouches[0].clientY - touchStart.y;
+    touchStart = null;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    setDirection(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+});
+
+// Pause automatique si on change d'onglet
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseSnake();
+});
+
+canvas.tabIndex = 0;
+resetSnake();
+
 /* --- INITIALISATION --- */
+applyTheme(save.theme);
+renderBest();
 renderXp();
 renderAchievements();
 renderClearedLevels();
