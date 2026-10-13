@@ -2121,6 +2121,48 @@ body.rainbow .panel {
     color: var(--yellow);
 }
 
+/* Option design (maquette + logo) */
+.shop-option {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 20px;
+    border-color: var(--cyan);
+}
+
+.shop-option-icon {
+    font-size: 2.6rem;
+    filter: drop-shadow(3px 3px 0 #000);
+}
+
+.shop-option-body {
+    flex: 1;
+    min-width: 240px;
+}
+
+.shop-option h3 {
+    font-family: var(--font-pixel);
+    font-weight: normal;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--heading);
+    margin-bottom: 8px;
+}
+
+:root[data-font] .shop-option h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.shop-option p {
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.shop-option .shop-perks {
+    margin-bottom: 0;
+}
+
 .shop-note {
     text-align: center;
     color: var(--muted);
