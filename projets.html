@@ -7,7 +7,7 @@
 
     <!-- Référencement -->
     <title>Projets de développement — Eloise Robert</title>
-    <meta name="description" content="Projets web d'Eloise Robert : Caf'Thé (React, Node.js, Laravel), Fleur de Pau (e-commerce), app santé mentale, extension de navigateur et sites vitrines.">
+    <meta name="description" content="Projets d'Eloise Robert : Caf'Thé (React, Node.js, Laravel, SQL), Fleur de Pau (e-commerce), Code Coll, BordTech, FlowType, applications mobiles React Native et sites vitrines.">
     <meta name="author" content="Eloise Robert">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0d0b1e">
@@ -22,7 +22,7 @@
     <meta property="og:site_name" content="Eloise Robert — Portfolio">
     <meta property="og:url" content="https://portfolio-eloiserobert.vercel.app/projets.html">
     <meta property="og:title" content="Projets de développement — Eloise Robert">
-    <meta property="og:description" content="Projets web d'Eloise Robert : Caf'Thé (React, Node.js, Laravel), Fleur de Pau (e-commerce), app santé mentale, extension de navigateur et sites vitrines.">
+    <meta property="og:description" content="Projets d'Eloise Robert : Caf'Thé (React, Node.js, Laravel, SQL), Fleur de Pau (e-commerce), Code Coll, BordTech, FlowType, applications mobiles React Native et sites vitrines.">
     <meta name="twitter:card" content="summary">
 
     <!-- Polices hébergées sur le site (déclarées dans styles.css) -->
@@ -46,7 +46,7 @@
             <section class="screen" data-screen="vscode" aria-labelledby="vscode-title">
                 <div class="screen-head">
                     <a href="index.html" class="back-btn">◀ Retour</a>
-                    <h2 id="vscode-title" class="screen-title"><span class="world">1-3</span> Donjon du code</h2>
+                    <h2 id="vscode-title" class="screen-title"><span class="world">1-3</span> <span data-pro="Projets de développement">Donjon du code</span></h2>
                 </div>
 
                 <div class="filters" role="group" aria-label="Filtrer par technologie">
@@ -57,19 +57,51 @@
                     <button type="button" class="filter-btn" data-filter="react">React</button>
                     <button type="button" class="filter-btn" data-filter="node">Node.js</button>
                     <button type="button" class="filter-btn" data-filter="laravel">Laravel</button>
+                    <button type="button" class="filter-btn" data-filter="sql">SQL</button>
+                    <button type="button" class="filter-btn" data-filter="mobile">Mobile</button>
                 </div>
 
                 <div class="card-grid">
-                    <article class="panel cartridge" data-tech="laravel php">
+                    <article class="panel cartridge" data-tech="html css js json">
+                        <div class="cart-cover" style="--a:#3cff8f; --b:#06281a">📰<span class="cart-label">BORDTECH</span></div>
+                        <header class="quest-head"><h3>BordTech</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge json">JSON</span></div></header>
+                        <p>Mon site de veille tech : les actus du jour classées en 9 catégories (éco-conception, jeux vidéo, IA, dev web, sécurité, open source…), avec recherche, filtres par thème et mode clair ou sombre. Les articles sont chargés depuis un fichier JSON.</p>
+                        <div class="actions">
+                            <a href="https://bordtech.vercel.app/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js node">
+                        <div class="cart-cover" style="--a:#61afef; --b:#1c2333">👥<span class="cart-label">CODE COLL</span></div>
+                        <header class="quest-head"><h3>Code Coll</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span></div></header>
+                        <p>Éditeur de code collaboratif en temps réel : plusieurs personnes écrivent dans le même fichier en même temps. Invitation par lien, exécution du code et terminal intégré.</p>
+                        <div class="actions">
+                            <a href="https://code-coll.vercel.app" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/code-coll" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code front</a>
+                            <a href="https://github.com/elo41flo/code-coll-back" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code back</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="html css js">
+                        <div class="cart-cover" style="--a:#c9d1d9; --b:#2b3137">⌨️<span class="cart-label">FLOWTYPE</span></div>
+                        <header class="quest-head"><h3>FlowType</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span></div></header>
+                        <p>Site pour tester et améliorer sa vitesse de frappe au clavier.</p>
+                        <div class="actions">
+                            <a href="https://typing-tutor-orpin.vercel.app/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
+                            <a href="https://github.com/elo41flo/TypingTutor" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
+                        </div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="laravel php sql">
                         <div class="cart-cover" style="--a:#ff2d20; --b:#6b0f0a">☕<span class="cart-label">CAF'THÉ</span></div>
-                        <header class="quest-head"><h3>Caf'Thé — Dashboard</h3><div class="badges"><span class="badge laravel">Laravel</span></div></header>
+                        <header class="quest-head"><h3>Caf'Thé — Dashboard</h3><div class="badges"><span class="badge laravel">Laravel</span><span class="badge sql">SQL</span></div></header>
                         <p>Projet pédagogique pour la certification Back-end (passage en avril 2027).</p>
                         <div class="actions"><span class="pixel-btn offline" title="Ce site était hébergé par la Fabrique du Numérique et n'est plus en ligne">🚫 Site hors ligne</span></div>
                     </article>
 
-                    <article class="panel cartridge" data-tech="react css node">
+                    <article class="panel cartridge" data-tech="react css node sql">
                         <div class="cart-cover" style="--a:#61dafb; --b:#123a4a">🍵<span class="cart-label">CAF'THÉ</span></div>
-                        <header class="quest-head"><h3>Caf'Thé — E-shop</h3><div class="badges"><span class="badge react">React</span><span class="badge css">CSS</span><span class="badge node">Node.js</span></div></header>
+                        <header class="quest-head"><h3>Caf'Thé — E-shop</h3><div class="badges"><span class="badge react">React</span><span class="badge css">CSS</span><span class="badge node">Node.js</span><span class="badge sql">SQL</span></div></header>
                         <p>Projet pédagogique pour la certification Front-end (obtenue).</p>
                         <div class="actions">
                             <a href="https://cafthe.vercel.app/" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
@@ -95,9 +127,9 @@
                         <div class="actions"><a href="https://github.com/elo41flo/extensions_navigateurs/tree/main/Raccourcis" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code & installation</a></div>
                     </article>
 
-                    <article class="panel cartridge" data-tech="html css js node">
+                    <article class="panel cartridge" data-tech="html css js node firebase">
                         <div class="cart-cover" style="--a:#ff8fc7; --b:#4a1030">🌸<span class="cart-label">FLEUR DE PAU</span></div>
-                        <header class="quest-head"><h3>Fleur de Pau</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span></div></header>
+                        <header class="quest-head"><h3>Fleur de Pau</h3><div class="badges"><span class="badge html">HTML</span><span class="badge css">CSS</span><span class="badge js">JS</span><span class="badge node">Node.js</span><span class="badge firebase">Firebase</span></div></header>
                         <p>Projet bénévole (2025) : boutique artisanale avec interface d'administration et système de paiement sécurisé.</p>
                         <div class="actions">
                             <a href="https://www.fleurdepau.fr" target="_blank" rel="noopener" class="pixel-btn">🌐 Voir le site</a>
@@ -124,8 +156,38 @@
                             <a href="https://github.com/elo41flo/elo41flo.github.io-elecrenov" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a>
                         </div>
                     </article>
+
+                    <article class="panel cartridge" data-tech="mobile react">
+                        <div class="cart-cover" style="--a:#7ec850; --b:#274d1a">🌾<span class="cart-label">STARDEW</span></div>
+                        <header class="quest-head"><h3>Stardew Valley — suivi de quêtes</h3><div class="badges"><span class="badge react">React Native</span><span class="badge expo">Expo</span><span class="badge ts">TypeScript</span></div></header>
+                        <p>Application mobile pour suivre sa progression dans les quêtes du jeu Stardew Valley.</p>
+                        <ul class="chips"><li>Application mobile</li><li>Non publiée</li></ul>
+                        <div class="actions"><a href="https://github.com/elo41flo/Stardew-Valley" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a></div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="mobile react">
+                        <div class="cart-cover" style="--a:#3ddc84; --b:#0e3d2a">💎<span class="cart-label">SIMS</span></div>
+                        <header class="quest-head"><h3>Sims Companion</h3><div class="badges"><span class="badge react">React Native</span><span class="badge expo">Expo</span><span class="badge ts">TypeScript</span></div></header>
+                        <p>Application mobile pour suivre sa progression et ses objectifs dans le jeu Les Sims 4.</p>
+                        <ul class="chips"><li>Application mobile</li><li>Non publiée</li></ul>
+                        <div class="actions"><a href="https://github.com/elo41flo/simsCompanion" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a></div>
+                    </article>
+
+                    <article class="panel cartridge" data-tech="mobile react">
+                        <div class="cart-cover" style="--a:#f05033; --b:#4a150c">🌿<span class="cart-label">GITLEARN</span></div>
+                        <header class="quest-head"><h3>GitLearn</h3><div class="badges"><span class="badge react">React Native</span><span class="badge expo">Expo</span><span class="badge ts">TypeScript</span></div></header>
+                        <p>Application mobile pour apprendre Git pas à pas.</p>
+                        <ul class="chips"><li>Application mobile</li><li>Non publiée</li></ul>
+                        <div class="actions"><a href="https://github.com/elo41flo/gitlearn" target="_blank" rel="noopener" class="pixel-btn alt">💻 Code</a></div>
+                    </article>
+
+                    <article class="panel cartridge upcoming" data-tech="">
+                        <div class="cart-cover" style="--a:#8a8aa0; --b:#24242e">🛠️<span class="cart-label">ATELIER 2</span></div>
+                        <header class="quest-head"><h3>Atelier de professionnalisation 2</h3><span class="tag" style="--t:#ffd319">À venir</span></header>
+                        <p>Réalisation de l'atelier 2 du BTS SIO option SLAM. Cette vignette sera complétée dès que le projet sera terminé.</p>
+                    </article>
                 </div>
-                <p class="empty-msg" id="empty-msg" hidden>Aucun projet trouvé… Ce coffre est vide !</p>
+                <p class="empty-msg" id="empty-msg" hidden data-pro="Aucun projet ne correspond à ce filtre.">Aucun projet trouvé… Ce coffre est vide !</p>
             </section>
         </main>
 

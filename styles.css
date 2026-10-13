@@ -1006,6 +1006,34 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
     line-height: 1;
 }
 
+/* Compétences en cours d'apprentissage */
+.inventory-sub {
+    margin: 20px 0 12px;
+    font-family: var(--font-pixel);
+    font-weight: normal;
+    font-size: 0.55rem;
+    line-height: 1.6;
+    color: var(--yellow);
+}
+
+:root[data-font] .inventory-sub {
+    font-size: 1.05rem;
+}
+
+.item.learning {
+    border-style: dashed;
+}
+
+.item.learning::after {
+    content: 'BTS';
+    color: var(--yellow);
+}
+
+/* Projet pas encore réalisé */
+.cartridge.upcoming {
+    border-style: dashed;
+}
+
 .item-tooltip {
     margin-top: 14px;
     color: var(--muted);
@@ -1106,6 +1134,10 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 .badge.laravel { background: #ff2d20; }
 .badge.wp { background: #21759b; }
 .badge.php { background: #4f5d95; }
+.badge.sql { background: #00758f; }
+.badge.ts { background: #3178c6; }
+.badge.expo { background: #1b1f23; }
+.badge.firebase { background: #ffca28; color: #000; }
 .badge.luau { background: #00a2ff; color: #000; }
 .badge.roblox { background: #e2231a; }
 
@@ -1916,6 +1948,16 @@ body.rainbow .panel {
     color: var(--border);
 }
 
+/* Tableau de synthèse E5 : 6 compétences, donc plus large */
+.synthese-wide {
+    min-width: 900px;
+}
+
+.text-link {
+    color: var(--cyan);
+    text-decoration: underline;
+}
+
 .table-legend {
     margin-top: 12px;
     color: var(--muted);
@@ -1954,6 +1996,15 @@ body.rainbow .panel {
 
 :root[data-theme="console"] .skill-code {
     color: #fff;
+}
+
+.skill-block p {
+    color: var(--muted);
+    font-size: 1.15rem;
+}
+
+.fiche-body > p {
+    margin-bottom: 12px;
 }
 
 .skill-block li {
@@ -2593,6 +2644,92 @@ body.rainbow .panel {
     color: var(--cyan);
     text-decoration: underline;
     text-underline-offset: 3px;
+}
+
+/* ---- Version classique = présentation professionnelle ----
+   Palette claire et sobre (sauf si un thème a été choisi exprès dans les options),
+   sans décor ni vocabulaire de jeu. */
+:root[data-mode="classic"]:not([data-theme]) {
+    --bg: #f5f6f8;
+    --bg-2: #eef0f4;
+    --panel: #ffffff;
+    --panel-2: #f1f3f7;
+    --border: #c9ced8;
+    --text: #1f2733;
+    --muted: #55606e;
+    --heading: #111827;
+    --deep: #ffffff;
+    --pink: #1d4ed8;   /* couleur d'accent : bleu */
+    --cyan: #0b5cab;
+    --yellow: #8a5d00;
+    --green: #0d6e38;
+    --red: #b42318;
+    --purple: #5b34c4;
+    --on-accent: #ffffff;
+    --grid-line: transparent;
+    color-scheme: light;
+}
+
+:root[data-mode="classic"]:not([data-theme]) :is(.step-num, .timeline-status, .filter-btn.active, .skill-code) {
+    color: #ffffff;
+}
+
+/* Éléments propres au jeu : masqués */
+:root[data-mode="classic"] :is(.world, .level-num, .stats, .char-avatar, .dialog-name, .dialog-next,
+    .perk p, .future-lock, .game-only, .level-icon, .perk > span) {
+    display: none !important;
+}
+
+:root[data-mode="classic"] .item::after,
+:root[data-mode="classic"] .cart-cover::before {
+    content: none;
+}
+
+/* Habillage sobre : bordures fines, coins arrondis, plus d'ombres "pixel" */
+:root[data-mode="classic"] body {
+    background-image: none;
+}
+
+:root[data-mode="classic"] :is(.panel, .dialog-box, .level) {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-mode="classic"] .dialog-box {
+    background: var(--panel);
+    padding: 18px 20px;
+    margin-top: 0;
+}
+
+:root[data-mode="classic"] .level {
+    background: var(--panel);
+}
+
+:root[data-mode="classic"] .pixel-btn {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+:root[data-mode="classic"] .pixel-btn.alt {
+    border-color: var(--border);
+}
+
+:root[data-mode="classic"] .screen-title {
+    text-shadow: none;
+}
+
+:root[data-mode="classic"] .cart-cover {
+    height: 90px;
+    border-radius: 9px 9px 0 0;
+    border-bottom-width: 1px;
+    font-size: 2.4rem;
+}
+
+:root[data-mode="classic"] :is(.level-icon, .shop-icon, .future-icon, .monster-icon, .trophy-icon, .shop-option-icon, .job-icon, .step-num, .dpad-btn) {
+    filter: none;
+    box-shadow: none;
 }
 
 /* Pas d'écran titre, de HUD ni d'effets de jeu ; la carte sert de sommaire */

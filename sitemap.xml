@@ -27,8 +27,13 @@
     </url>
     <url>
         <loc>https://portfolio-eloiserobert.vercel.app/bts-sio-e5.html</loc>
-        <lastmod>2026-10-07</lastmod>
+        <lastmod>2026-10-13</lastmod>
         <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://portfolio-eloiserobert.vercel.app/bts-sio-bloc2.html</loc>
+        <lastmod>2026-10-13</lastmod>
+        <priority>0.5</priority>
     </url>
     <url>
         <loc>https://portfolio-eloiserobert.vercel.app/certifications.html</loc>

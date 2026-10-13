@@ -47,7 +47,7 @@ persist();
 // Anciennes adresses du site sur une seule page (index.html#profil…) : redirection vers la bonne page
 if (PAGE === 'map' && location.hash.length > 1) {
     const hash = location.hash.slice(1);
-    if (hash.startsWith('fiche-')) location.replace(PAGES.e5 + location.hash);
+    if (hash.startsWith('fiche-')) location.replace(PAGES.bloc2 + location.hash);
     else if (PAGES[hash] && hash !== 'map') location.replace(PAGES[hash]);
 }
 
@@ -423,7 +423,9 @@ if (tooltip) {
         const show = () => {
             const name = item.querySelector('.item-name').textContent;
             const lvl = Number(item.dataset.lvl);
-            tooltip.innerHTML = `<strong>${name}</strong> — Niveau ${lvl}/5 : ${LVL_LABELS[lvl]} ${'★'.repeat(lvl)}${'☆'.repeat(5 - lvl)}`;
+            tooltip.innerHTML = item.classList.contains('learning')
+                ? `<strong>${name}</strong> — en cours d'apprentissage cette année, en BTS SIO`
+                : `<strong>${name}</strong> — Niveau ${lvl}/5 : ${LVL_LABELS[lvl]} ${'★'.repeat(lvl)}${'☆'.repeat(5 - lvl)}`;
         };
         item.addEventListener('mouseenter', show);
         item.addEventListener('focus', show);
@@ -496,7 +498,7 @@ if (form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         formStatus.className = 'form-status';
-        formStatus.textContent = 'Sauvegarde en cours…';
+        formStatus.textContent = save.classic ? 'Envoi en cours…' : 'Sauvegarde en cours…';
 
         try {
             const response = await fetch(form.action, {
@@ -508,11 +510,15 @@ if (form) {
 
             form.reset();
             formStatus.classList.add('ok');
-            formStatus.textContent = '✔ Partie sauvegardée ! Ton message a bien été envoyé.';
+            formStatus.textContent = save.classic
+                ? '✔ Votre message a bien été envoyé. Je vous réponds rapidement.'
+                : '✔ Partie sauvegardée ! Ton message a bien été envoyé.';
             unlock('contact');
         } catch (err) {
             formStatus.classList.add('error');
-            formStatus.textContent = '✖ Game over… L\'envoi a échoué. Réessaie ou écris-moi par email.';
+            formStatus.textContent = save.classic
+                ? '✖ L\'envoi a échoué. Merci de réessayer ou de m\'écrire par email.'
+                : '✖ Game over… L\'envoi a échoué. Réessaie ou écris-moi par email.';
         } finally {
             submitBtn.disabled = false;
         }
@@ -960,6 +966,15 @@ a11yBtn.addEventListener('click', () => {
 /* --- 18. VERSION CLASSIQUE ("recruteur pressé") --- */
 const footerClassic = $('footer-classic');
 
+// En version classique, les libellés "jeu" (Donjon du code, Fiche personnage…) sont remplacés
+// par leur équivalent professionnel, écrit dans l'attribut data-pro de chaque élément.
+function applyWording() {
+    document.querySelectorAll('[data-pro]').forEach(el => {
+        if (el.dataset.game === undefined) el.dataset.game = el.textContent;
+        el.textContent = save.classic ? el.dataset.pro : el.dataset.game;
+    });
+}
+
 function setClassicLabels() {
     footerClassic.textContent = save.classic ? 'Version jeu' : 'Version classique';
     footerClassic.href = save.classic ? '?mode=jeu' : '?mode=classique';
@@ -972,6 +987,8 @@ function setClassic(on) {
     else delete document.documentElement.dataset.mode;
     applyA11y();
     setClassicLabels();
+    applyWording();
+    applyTheme(save.theme); // la version classique a sa propre palette sobre
     if (on) {
         pauseSnake();
         if (typeEl) showFullText();
@@ -987,6 +1004,8 @@ footerClassic.addEventListener('click', (e) => {
 /* --- 19. GITHUB : PROJETS MIS À JOUR AUTOMATIQUEMENT (API GitHub) --- */
 const GH_USER = 'elo41flo';
 const GH_CACHE = 'elo-gh-cache';
+// Dépôts à ne pas afficher dans "Projets récents" (ajouter un nom ici pour en masquer un autre)
+const GH_HIDDEN = ['anniv-back'];
 const LANG_COLORS = {
     HTML: '#e34c26', CSS: '#563d7c', JavaScript: '#f1e05a', TypeScript: '#3178c6',
     PHP: '#4f5d95', Blade: '#f7523f', Python: '#3572a5', Lua: '#000080', Luau: '#00a2ff', Vue: '#41b883'
@@ -1054,7 +1073,7 @@ async function loadGithub() {
     try {
         const { repos } = await fetchGithub();
         const recent = repos
-            .filter(r => !r.fork && r.name !== GH_USER)
+            .filter(r => !r.fork && r.name !== GH_USER && !GH_HIDDEN.includes(r.name))
             .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
             .slice(0, 6);
         if (!recent.length) throw new Error('Aucun dépôt');
@@ -1147,7 +1166,8 @@ function paletteCommands() {
         level('boutique', '🛒', 'Services', '4-1', 'boutique tarifs faq'),
         level('arcade', '👾', 'Arcade', '4-2', 'mini-jeu snake roblox jeux luau'),
         level('quetes', '🗝️', 'Prochaines quêtes', '4-3', 'projets futurs'),
-        level('e5', '🎓', 'BTS SIO · E5', 'E5', 'epreuve slam synthese'),
+        level('e5', '🎓', 'BTS SIO · E5', 'E5', 'epreuve synthese bloc 1 support'),
+        level('bloc2', '🧩', 'BTS SIO · Bloc 2', 'SLAM', 'developpement applications slam'),
         level('autres', '🍄', 'Autres', 'BONUS', 'loisirs'),
         level('trophees', '🏆', 'Succès débloqués', 'trophées', 'achievements'),
         { icon: '🐍', label: 'Jouer au Snake', hint: 'action', keywords: 'jeu arcade', run: () => startSnake() },
@@ -1273,15 +1293,15 @@ document.addEventListener('keydown', (e) => {
 });
 paletteBtn.addEventListener('click', openPalette);
 
-/* --- 22. BTS SIO E5 : ouvrir la fiche ciblée (#fiche-…) --- */
+/* --- 22. BTS SIO : ouvrir la fiche ciblée par un lien du tableau (#real-… ou #fiche-…) --- */
 function openFicheFromHash() {
-    const fiche = location.hash.startsWith('#fiche-') && document.querySelector(location.hash);
+    const fiche = /^#(real|fiche)-/.test(location.hash) && document.querySelector(location.hash);
     if (fiche) {
         fiche.open = true;
         fiche.scrollIntoView({ block: 'start' });
     }
 }
-if (PAGE === 'e5') {
+if (PAGE === 'e5' || PAGE === 'bloc2') {
     window.addEventListener('hashchange', openFicheFromHash);
     openFicheFromHash();
 }
@@ -1293,6 +1313,7 @@ applyA11y();
 renderXp();
 renderAchievements();
 setClassicLabels();
+applyWording();
 visitPage();
 
 // GitHub n'est interrogé que lorsque la section devient visible à l'écran

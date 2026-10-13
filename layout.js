@@ -49,6 +49,7 @@ window.SITE = {
         arcade: 'arcade.html',
         quetes: 'projets-futurs.html',
         e5: 'bts-sio-e5.html',
+        bloc2: 'bts-sio-bloc2.html',
         autres: 'autres.html',
         trophees: 'succes.html',
         plan: 'plan-du-site.html',
@@ -137,7 +138,7 @@ customElements.define('site-footer', class extends HTMLElement {
                 <a href="https://www.linkedin.com/in/eloise-robert-0b36902a6" target="_blank" rel="noopener">🔗 LinkedIn</a>
                 <a href="https://www.instagram.com/eloise_robert_dev/" target="_blank" rel="noopener">📸 Instagram</a>
             </p>
-            <p>© 2026 Eloise Robert · Fait main en HTML, CSS & JS · 🕹️ Insert coin</p>
+            <p>© 2026 Eloise Robert · Fait main en HTML, CSS & JS<span class="game-only"> · 🕹️ Insert coin</span></p>
         </footer>`;
     }
 });
