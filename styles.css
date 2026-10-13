@@ -1106,6 +1106,8 @@ body:has(.title-screen:not([hidden]):not(.leaving)) {
 .badge.laravel { background: #ff2d20; }
 .badge.wp { background: #21759b; }
 .badge.php { background: #4f5d95; }
+.badge.luau { background: #00a2ff; color: #000; }
+.badge.roblox { background: #e2231a; }
 
 /* Cartouches de jeu */
 .cartridge {
@@ -1813,6 +1815,12 @@ body.rainbow .panel {
     font-size: 1.2rem;
 }
 
+/* Quête déjà commencée */
+.future-quest.unlocked {
+    border-style: solid;
+    border-color: var(--green);
+}
+
 .future-quest .quest-head {
     padding-right: 26px; /* laisse la place au cadenas */
 }
@@ -2105,11 +2113,22 @@ body.rainbow .panel {
     margin-top: auto;
     align-self: flex-start;
     font-family: var(--font-pixel);
-    font-size: 0.6rem;
+    font-size: 0.52rem;
+    line-height: 1.7;
     padding: 8px 10px;
     background: var(--deep);
     border: 2px dashed var(--yellow);
     color: var(--yellow);
+}
+
+.shop-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+
+.cartridge .chips {
+    margin-top: 12px;
 }
 
 /* FAQ de la boutique */

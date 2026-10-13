@@ -1145,7 +1145,7 @@ function paletteCommands() {
         level('veille', '📡', 'Veille techno', '3-2', 'taverne actualites'),
         level('contact', '💾', 'Contact', '3-3', 'message email'),
         level('boutique', '🛒', 'Services', '4-1', 'boutique tarifs faq'),
-        level('arcade', '👾', 'Arcade', '4-2', 'mini-jeu'),
+        level('arcade', '👾', 'Arcade', '4-2', 'mini-jeu snake roblox jeux luau'),
         level('quetes', '🗝️', 'Prochaines quêtes', '4-3', 'projets futurs'),
         level('e5', '🎓', 'BTS SIO · E5', 'E5', 'epreuve slam synthese'),
         level('autres', '🍄', 'Autres', 'BONUS', 'loisirs'),
